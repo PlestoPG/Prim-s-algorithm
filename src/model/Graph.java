@@ -5,9 +5,26 @@ public class Graph {
     private final Set<Edge> edgeSet = new LinkedHashSet<>();
     private final Map<Vertex, Set<Edge>> adjMap = new HashMap<>();
     public void addVertex(Vertex v) {
-        if (!vertexMap.containsKey(v.getName())) {
-            vertexMap.put(v.getName(), v);
-            adjMap.put(v, new LinkedHashSet<>());
+        if (vertexMap.containsKey(v.getName())) {
+            throw new IllegalArgumentException("Vertex with this name already exists");
+        }
+        vertexMap.put(v.getName(), v);
+        adjMap.put(v, new LinkedHashSet<>());
+    }
+    public void removeVertex(String name) {
+        Vertex v = vertexMap.remove(name);
+        if (v != null) {
+            Set<Edge> incident = adjMap.remove(v);
+            if (incident != null) {
+                for (Edge e : incident) {
+                    edgeSet.remove(e);
+                    Vertex opp = e.getOpposite(v);
+                    Set<Edge> oppEdges = adjMap.get(opp);
+                    if (oppEdges != null) {
+                        oppEdges.remove(e);
+                    }
+                }
+            }
         }
     }
     public void addEdge(String n1, String n2, int w) {
