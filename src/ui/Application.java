@@ -7,8 +7,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
@@ -18,19 +16,6 @@ public class Application extends JFrame {
     private final JPanel canvas;
     protected final JLabel statusLabel = new JLabel();
     public Graph graph = new Graph();
-    private Point mousePosition;
-    private Vertex selectedVertex;
-
-
-    private Vertex findVertex(Point p) {
-        for (Vertex v : graph.getVertices()) {
-            Point vertexPoint = new Point(v.getX(), v.getY());
-            double distance = vertexPoint.distance(p);
-            if (distance <= 20)
-                return v;
-        }
-        return null;
-    }
 
     public Application() {
         setTitle("Визуализатор алгоритма Прима (Прототип)");
@@ -41,6 +26,8 @@ public class Application extends JFrame {
         // Панель инструментов
         Toolbar toolbar = new Toolbar(this);
         add(toolbar, BorderLayout.NORTH);
+
+        MouseController controller = new MouseController(this, toolbar);
 
         // Холст
         canvas = new JPanel() {
@@ -59,9 +46,9 @@ public class Application extends JFrame {
                     g.drawString(edge.getWeight() + "", midX, midY);
                 }
 
-                if (selectedVertex != null && mousePosition != null) {
+                if (controller.selectedVertex != null && controller.mousePosition != null) {
                     g.setColor(Color.BLUE);
-                    g.drawLine(selectedVertex.getX(), selectedVertex.getY(), mousePosition.x, mousePosition.y);
+                    g.drawLine(controller.selectedVertex.getX(), controller.selectedVertex.getY(), controller.mousePosition.x, controller.mousePosition.y);
                     g.setColor(Color.WHITE);
                 }
 
@@ -74,84 +61,9 @@ public class Application extends JFrame {
             }
         };
         canvas.setBackground(Color.WHITE);
-        canvas.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent event) {
-                if (SwingUtilities.isRightMouseButton(event)) {
-                    Vertex vertex = findVertex(event.getPoint());
-                    if (vertex != null) {
-                        graph.removeVertex(vertex.getName());
-                        statusLabel.setText("Удалена вершина в (" + event.getX() + ", " + event.getY() + ")");
-                    } else {
-                        int x = event.getPoint().x,  y = event.getPoint().y;
-                        char symbol = '1';
-                        while (symbol <= 'Z') {
-                            try {
-                                graph.addVertex(new Vertex(symbol + "", x, y));
-                                break;
-                            } catch (Exception e) { symbol++;}
-                        }
-                        statusLabel.setText("Добавлена вершина в (" + event.getX() + ", " + event.getY() + ")");
-                    }
-                    if (graph.getVertices().isEmpty()) {
-                        toolbar.verticesDisappeared();
-                    } else {
-                        toolbar.verticesAppeared();
-                    }
-                    canvas.repaint();
-                }
-            }
-        });
 
-        canvas.addMouseMotionListener(new MouseAdapter() {
-
-            @Override
-            public void mouseDragged(MouseEvent e) {
-
-                mousePosition = e.getPoint();
-
-                canvas.repaint();
-            }
-        });
-
-        canvas.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (SwingUtilities.isLeftMouseButton(e)) {
-                    selectedVertex = findVertex(e.getPoint());
-
-                    if (selectedVertex != null) {
-                        mousePosition = e.getPoint();
-                        canvas.repaint();
-                    }
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (selectedVertex != null) {
-                    Vertex target = findVertex(e.getPoint());
-
-                    // Если отпустили на другую вершину
-                    if (target != null && target != selectedVertex) {
-                        String result = JOptionPane.showInputDialog(
-                            Application.this,
-                            "Введите вес ребра:"
-                        );
-                        try {
-                            int weight = Integer.parseInt(result);
-                            graph.addEdge(selectedVertex.getName(), target.getName(), weight);
-                            statusLabel.setText("Добавлено ребро с весом " + weight + " между вершинами " + selectedVertex.getName() + " и " + target.getName());
-                        } catch(Exception ex) {
-                            statusLabel.setText("Вес должен быть неотрицательным числом");
-                        }
-                    }
-                    selectedVertex = null;
-                    mousePosition = null;
-                    canvas.repaint();
-                }
-            }
-        });
+        canvas.addMouseListener(controller);
+        canvas.addMouseMotionListener(controller);
 
         add(canvas, BorderLayout.CENTER);
 
