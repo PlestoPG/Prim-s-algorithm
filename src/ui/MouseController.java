@@ -27,7 +27,6 @@ public class MouseController extends MouseAdapter {
         for (Character symbol1 : (' ' + ALPHABET).toCharArray())
             for (Character symbol2 : ALPHABET.toCharArray())
                 try {
-                    System.out.println(symbol1 + " " + symbol2);
                     application.graph.addVertex(new Vertex(symbol1 + "" + symbol2, x, y));
                     return;
                 } catch (Exception ignored) {}
