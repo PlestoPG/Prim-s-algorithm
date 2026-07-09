@@ -1,8 +1,6 @@
 package ui;
 
 import model.Graph;
-import model.Vertex;
-import model.Edge;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
@@ -13,7 +11,6 @@ import java.util.List;
 
 
 public class Application extends JFrame {
-    private final JPanel canvas;
     protected final JLabel statusLabel = new JLabel();
     public Graph graph = new Graph();
 
@@ -27,46 +24,10 @@ public class Application extends JFrame {
         Toolbar toolbar = new Toolbar(this);
         add(toolbar, BorderLayout.NORTH);
 
-        MouseController controller = new MouseController(this, toolbar);
+        // Холст с графом
+        add(new Canvas(this, toolbar), BorderLayout.CENTER);
 
-        // Холст
-        canvas = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-
-                for (Edge edge: graph.getEdges()) {
-                    g.setColor(Color.BLUE);
-                    g.drawLine(edge.getV1().getX(), edge.getV1().getY(), edge.getV2().getX(), edge.getV2().getY());
-                    g.setColor(Color.BLACK);
-
-                    int midX = (edge.getV1().getX() + edge.getV2().getX()) / 2;
-                    int midY = (edge.getV1().getY() + edge.getV2().getY()) / 2;
-
-                    g.drawString(edge.getWeight() + "", midX, midY);
-                }
-
-                if (controller.selectedVertex != null && controller.mousePosition != null) {
-                    g.setColor(Color.BLUE);
-                    g.drawLine(controller.selectedVertex.getX(), controller.selectedVertex.getY(), controller.mousePosition.x, controller.mousePosition.y);
-                    g.setColor(Color.WHITE);
-                }
-
-                for (Vertex vertex: graph.getVertices()) {
-                    g.setColor(Color.BLUE);
-                    g.fillOval(vertex.getX() - 15, vertex.getY() - 15, 30, 30);
-                    g.setColor(Color.WHITE);
-                    g.drawString(vertex.getName(), vertex.getX() - 4 * vertex.getName().length(), vertex.getY() + 5);
-                }
-            }
-        };
-        canvas.setBackground(Color.WHITE);
-
-        canvas.addMouseListener(controller);
-        canvas.addMouseMotionListener(controller);
-
-        add(canvas, BorderLayout.CENTER);
-
+        // Панель снизу с ползунком и кнопкой "о разработчиках"
         add(new BottomPanel(this), BorderLayout.SOUTH);
 
         setVisible(true);
@@ -84,8 +45,8 @@ public class Application extends JFrame {
                     String text;
                     Transferable transferable = support.getTransferable();
                     if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-                        List<File> files = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
-                        File file = files.getFirst();
+                        List<?> files = (List<?>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+                        File file = (File) files.getFirst();
                         text = Files.readString(file.toPath());
                     } else {
                         text = (String) transferable.getTransferData(DataFlavor.stringFlavor);
