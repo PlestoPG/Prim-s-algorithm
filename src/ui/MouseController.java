@@ -6,11 +6,18 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+enum DragState {
+    NONE,
+    VERTEX,
+    EDGE
+}
+
 public class MouseController extends MouseAdapter {
     Point mousePosition;
     Vertex selectedVertex;
     Application application;
     Toolbar toolbar;
+    DragState dragState;
 
     private Vertex findVertex(Point p) {
         for (Vertex v : application.graph.getVertices()) {
@@ -56,16 +63,27 @@ public class MouseController extends MouseAdapter {
     @Override
     public void mouseDragged(MouseEvent e) {
         mousePosition = e.getPoint();
+        if (dragState == DragState.VERTEX) {
+            selectedVertex.setX(e.getX());
+            selectedVertex.setY(e.getY());
+        }
         application.repaint();
     }
 
     @Override
-    public void mousePressed(MouseEvent e) {
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            selectedVertex = findVertex(e.getPoint());
-
+    public void mousePressed(MouseEvent event) {
+        if (SwingUtilities.isLeftMouseButton(event)) {
+            selectedVertex = findVertex(event.getPoint());
             if (selectedVertex != null) {
-                mousePosition = e.getPoint();
+                dragState = DragState.EDGE;
+                mousePosition = event.getPoint();
+                application.repaint();
+            }
+        }  else if (SwingUtilities.isMiddleMouseButton(event)) {
+            selectedVertex = findVertex(event.getPoint());
+            if (selectedVertex != null) {
+                dragState = DragState.VERTEX;
+                mousePosition = event.getPoint();
                 application.repaint();
             }
         }
@@ -75,9 +93,7 @@ public class MouseController extends MouseAdapter {
     public void mouseReleased(MouseEvent e) {
         if (selectedVertex != null) {
             Vertex target = findVertex(e.getPoint());
-
-            // Если отпустили на другую вершину
-            if (target != null && target != selectedVertex) {
+            if (dragState == DragState.EDGE && target != null && target != selectedVertex) {
                 String result = JOptionPane.showInputDialog(
                     application,
                     "Введите вес ребра:"
@@ -90,6 +106,7 @@ public class MouseController extends MouseAdapter {
                     application.setStatus("Вес должен быть неотрицательным числом");
                 }
             }
+            dragState = DragState.NONE;
             selectedVertex = null;
             mousePosition = null;
             application.repaint();
@@ -97,6 +114,7 @@ public class MouseController extends MouseAdapter {
     }
 
     MouseController(Application application, Toolbar toolbar) {
+        this.dragState = DragState.NONE;
         this.application = application;
         this.toolbar = toolbar;
     }
