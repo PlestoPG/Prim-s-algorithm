@@ -25,7 +25,7 @@ public class Application extends JFrame {
         add(new BottomPanel(this), BorderLayout.SOUTH);
 
         // Обработка переноса файла или текста в окно приложения
-        setTransferHandler(new DragnDropHandler(this));
+        setTransferHandler(new DragNDropHandler(this));
 
         setVisible(true);
     }

@@ -7,7 +7,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
 
-public class DragnDropHandler extends TransferHandler {
+public class DragNDropHandler extends TransferHandler {
     Application application;
 
     @Override
@@ -39,7 +39,7 @@ public class DragnDropHandler extends TransferHandler {
         }
     }
 
-    DragnDropHandler(Application application) {
+    DragNDropHandler(Application application) {
         this.application = application;
     }
 }
