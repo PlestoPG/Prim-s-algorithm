@@ -61,7 +61,7 @@ public class Canvas extends JPanel {
             g.drawString(text, textX + offsetX, textY + offsetY);
         }
 
-        if (controller.selectedVertex != null && controller.mousePosition != null) {
+        if (controller.dragState == DragState.EDGE) {
             g.setColor(Color.BLUE);
             g.drawLine(
                     controller.selectedVertex.getX() + offsetX,
