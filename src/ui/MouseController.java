@@ -100,6 +100,8 @@ public class MouseController extends MouseAdapter {
                 );
                 try {
                     int weight = Integer.parseInt(result);
+                    if (weight < 0)
+                        throw new Exception();
                     application.graph.addEdge(selectedVertex.getName(), target.getName(), weight);
                     application.setStatus("Добавлено ребро с весом " + weight + " между вершинами " + selectedVertex.getName() + " и " + target.getName());
                 } catch(Exception ex) {
