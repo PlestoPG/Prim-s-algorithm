@@ -24,12 +24,13 @@ public class MouseController extends MouseAdapter {
 
     private void placeVertex(int x, int y) {
         String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        for (Character symbol1 : (' ' + ALPHABET).toCharArray())
+        for (Character symbol1 : ALPHABET.toCharArray())
             for (Character symbol2 : ALPHABET.toCharArray())
                 try {
-                    application.graph.addVertex(new Vertex(symbol1 + "" + symbol2, x, y));
+                    application.graph.addVertex(new Vertex((symbol1 == '0' ? '\0' : symbol1) + "" + symbol2, x, y));
                     return;
                 } catch (Exception ignored) {}
+        application.setStatus("Диапазон возможных названий вершин закончился");
     }
 
     @Override
