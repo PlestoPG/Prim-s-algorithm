@@ -16,12 +16,13 @@ public class MouseController extends MouseAdapter {
     Point mousePosition;
     Vertex selectedVertex;
     Application application;
+    Canvas canvas;
     Toolbar toolbar;
     DragState dragState;
 
     private Vertex findVertex(Point p) {
         for (Vertex v : application.graph.getVertices()) {
-            Point vertexPoint = new Point(v.getX(), v.getY());
+            Point vertexPoint = new Point(v.getX() + canvas.offsetX, v.getY() + canvas.offsetY);
             double distance = vertexPoint.distance(p);
             if (distance <= 20)
                 return v;
@@ -48,8 +49,9 @@ public class MouseController extends MouseAdapter {
                 application.graph.removeVertex(vertex.getName());
                 application.setStatus("Удалена вершина в (" + event.getX() + ", " + event.getY() + ")");
             } else {
-                placeVertex(event.getPoint().x, event.getPoint().y);
+                placeVertex(event.getPoint().x - canvas.offsetX, event.getPoint().y - canvas.offsetY);
                 application.setStatus("Добавлена вершина в (" + event.getX() + ", " + event.getY() + ")");
+                canvas.increaseSize(event.getPoint().x, event.getPoint().y);
             }
             if (application.graph.getVertices().isEmpty()) {
                 toolbar.verticesDisappeared();
@@ -64,8 +66,9 @@ public class MouseController extends MouseAdapter {
     public void mouseDragged(MouseEvent e) {
         mousePosition = e.getPoint();
         if (dragState == DragState.VERTEX) {
-            selectedVertex.setX(e.getX());
-            selectedVertex.setY(e.getY());
+            selectedVertex.setX(e.getX() - canvas.offsetX);
+            selectedVertex.setY(e.getY() - canvas.offsetY);
+            canvas.increaseSize(e.getX(), e.getY());
         }
         application.repaint();
     }
@@ -115,9 +118,10 @@ public class MouseController extends MouseAdapter {
         }
     }
 
-    MouseController(Application application, Toolbar toolbar) {
+    MouseController(Application application, Canvas canvas, Toolbar toolbar) {
         this.dragState = DragState.NONE;
         this.application = application;
+        this.canvas = canvas;
         this.toolbar = toolbar;
     }
 }

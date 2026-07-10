@@ -11,7 +11,8 @@ public class Application extends JFrame {
     public Application() {
         setTitle("Визуализатор алгоритма Прима (Прототип)");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setSize(Toolkit.getDefaultToolkit().getScreenSize());
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         // Панель инструментов
@@ -19,7 +20,11 @@ public class Application extends JFrame {
         add(toolbar, BorderLayout.NORTH);
 
         // Холст с графом
-        add(new Canvas(this, toolbar), BorderLayout.CENTER);
+        Canvas canvas = new Canvas(this, toolbar);
+        JScrollPane scrollPane = new JScrollPane(canvas);
+        canvas.setJScrollPane(scrollPane);
+        canvas.setPreferredSize(new Dimension(getWidth() * 2, getHeight() * 2));
+        add(scrollPane, BorderLayout.CENTER);
 
         // Панель снизу с ползунком и кнопкой "о разработчиках"
         add(new BottomPanel(this), BorderLayout.SOUTH);
@@ -28,6 +33,7 @@ public class Application extends JFrame {
         setTransferHandler(new DragNDropHandler(this));
 
         setVisible(true);
+        SwingUtilities.invokeLater(canvas::initiateViewPoint);
     }
 
     public void setStatus(String status) {

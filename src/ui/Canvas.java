@@ -8,10 +8,15 @@ import java.awt.*;
 
 public class Canvas extends JPanel {
     Application application;
+    JScrollPane scrollPane;
     MouseController controller;
+    int offsetX = 0;
+    int offsetY = 0;
 
     int VERTEX_RADIUS = 20;
     int EDGE_WIDTH = 10;
+    int DISTANCE_FROM_BORDER_TO_RESIZE = 50;
+    int RESIZE_QUANTITY = 100;
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -27,10 +32,10 @@ public class Canvas extends JPanel {
             String text = edge.getWeight() + "";
             g.setColor(Color.BLUE);
             g.drawLine(
-                    edge.getV1().getX(),
-                    edge.getV1().getY(),
-                    edge.getV2().getX(),
-                    edge.getV2().getY()
+                    edge.getV1().getX() + offsetX,
+                    edge.getV1().getY() + offsetY,
+                    edge.getV2().getX() + offsetX,
+                    edge.getV2().getY() + offsetY
             );
 
             int midX = (edge.getV1().getX() + edge.getV2().getX()) / 2;
@@ -39,17 +44,27 @@ public class Canvas extends JPanel {
             FontMetrics fm = g.getFontMetrics();
             int textX = midX - fm.stringWidth(text) / 2;
             int textY = midY + (fm.getAscent() - fm.getDescent()) / 2;
-            g.drawRect(textX, midY - fm.getHeight() / 2, fm.stringWidth(text), fm.getHeight());
-            g.fillRect(textX, midY - fm.getHeight() / 2, fm.stringWidth(text), fm.getHeight());
+            g.drawRect(
+                    textX + offsetX,
+                    midY - fm.getHeight() / 2 + offsetY,
+                    fm.stringWidth(text),
+                    fm.getHeight()
+            );
+            g.fillRect(
+                    textX + offsetX,
+                    midY - fm.getHeight() / 2 + offsetY,
+                    fm.stringWidth(text),
+                    fm.getHeight()
+            );
             g.setColor(Color.WHITE);
-            g.drawString(text, textX, textY);
+            g.drawString(text, textX + offsetX, textY + offsetY);
         }
 
         if (controller.selectedVertex != null && controller.mousePosition != null) {
             g.setColor(Color.BLUE);
             g.drawLine(
-                    controller.selectedVertex.getX(),
-                    controller.selectedVertex.getY(),
+                    controller.selectedVertex.getX() + offsetX,
+                    controller.selectedVertex.getY() + offsetY,
                     controller.mousePosition.x,
                     controller.mousePosition.y
             );
@@ -60,8 +75,8 @@ public class Canvas extends JPanel {
         for (Vertex vertex : application.graph.getVertices()) {
             g.setColor(Color.BLUE);
             g.fillOval(
-                    vertex.getX() - VERTEX_RADIUS,
-                    vertex.getY() - VERTEX_RADIUS,
+                    vertex.getX() - VERTEX_RADIUS + offsetX,
+                    vertex.getY() - VERTEX_RADIUS + offsetY,
                     VERTEX_RADIUS * 2,
                     VERTEX_RADIUS * 2
             );
@@ -70,8 +85,53 @@ public class Canvas extends JPanel {
             FontMetrics fm = g.getFontMetrics();
             int textX = vertex.getX() - fm.stringWidth(vertex.getName()) / 2;
             int textY = vertex.getY() + (fm.getAscent() - fm.getDescent()) / 2;
-            g.drawString(vertex.getName(), textX, textY);
+            g.drawString(vertex.getName(), textX + offsetX, textY + offsetY);
         }
+    }
+
+    public void increaseSize(int x, int y) {
+        int width = getSize().width, height = getSize().height;
+        boolean updateWidth = false, updateHeight = false;
+        boolean offsetXChanged = false, offsetYChanged = false;
+
+        if (x < DISTANCE_FROM_BORDER_TO_RESIZE) {
+            offsetX += RESIZE_QUANTITY;
+            offsetXChanged = true;
+            updateWidth = true;
+        } else if (x > width - DISTANCE_FROM_BORDER_TO_RESIZE) {
+            updateWidth = true;
+        }
+        if (y < DISTANCE_FROM_BORDER_TO_RESIZE) {
+            offsetY += RESIZE_QUANTITY;
+            offsetYChanged = true;
+            updateHeight = true;
+        } else if (y > height - DISTANCE_FROM_BORDER_TO_RESIZE) {
+            updateHeight = true;
+        }
+        if (updateWidth || updateHeight) {
+            JViewport viewport = scrollPane.getViewport();
+            Point viewPosition = viewport.getViewPosition();
+            setPreferredSize(new Dimension(
+                    getWidth() + (updateWidth ? RESIZE_QUANTITY : 0),
+                    getHeight() + (updateHeight ? RESIZE_QUANTITY : 0)
+            ));
+            revalidate();
+            viewport.setViewPosition(new Point(
+                    viewPosition.x + (offsetXChanged ? RESIZE_QUANTITY : 0),
+                    viewPosition.y + (offsetYChanged ? RESIZE_QUANTITY : 0)
+            ));
+        }
+    }
+
+    void setJScrollPane(JScrollPane scrollPane) {
+        this.scrollPane = scrollPane;
+    }
+
+    void initiateViewPoint() {
+        scrollPane.getViewport().setViewPosition(new Point(
+                (int) (getPreferredSize().width * 0.25),
+                (int) (getPreferredSize().height * 0.25)
+        ));
     }
 
     Canvas(Application application, Toolbar toolbar) {
@@ -80,7 +140,7 @@ public class Canvas extends JPanel {
         setBackground(Color.WHITE);
 
         // Работа по холсту с мышкой
-        this.controller = new MouseController(application, toolbar);
+        this.controller = new MouseController(application, this, toolbar);
         addMouseListener(controller);
         addMouseMotionListener(controller);
     }
