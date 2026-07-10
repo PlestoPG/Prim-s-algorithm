@@ -12,6 +12,7 @@ public class Canvas extends JPanel {
     MouseController controller;
     int offsetX = 0;
     int offsetY = 0;
+    double scale = 1;
 
     int VERTEX_RADIUS = 20;
     int EDGE_WIDTH = 10;
@@ -23,11 +24,11 @@ public class Canvas extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         Stroke defaultStroke = g2.getStroke();
-        g2.setStroke(new BasicStroke(EDGE_WIDTH, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g2.setStroke(new BasicStroke((float) (EDGE_WIDTH * scale), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
 
         Font defaultFont = g.getFont();
-        g.setFont(new Font(defaultFont.getName(), Font.BOLD, VERTEX_RADIUS));
+        g.setFont(new Font(defaultFont.getName(), Font.BOLD, (int) (VERTEX_RADIUS * scale)));
         for (Edge edge : application.graph.getEdges()) {
             String text = edge.getWeight() + "";
             g.setColor(Color.BLUE);
@@ -75,10 +76,10 @@ public class Canvas extends JPanel {
         for (Vertex vertex : application.graph.getVertices()) {
             g.setColor(Color.BLUE);
             g.fillOval(
-                    vertex.getX() - VERTEX_RADIUS + offsetX,
-                    vertex.getY() - VERTEX_RADIUS + offsetY,
-                    VERTEX_RADIUS * 2,
-                    VERTEX_RADIUS * 2
+                    (int) (vertex.getX() - VERTEX_RADIUS * scale + offsetX),
+                    (int) (vertex.getY() - VERTEX_RADIUS * scale + offsetY),
+                    (int) (VERTEX_RADIUS * 2 * scale),
+                    (int) (VERTEX_RADIUS * 2 * scale)
             );
             g.setColor(Color.WHITE);
 
@@ -125,6 +126,21 @@ public class Canvas extends JPanel {
 
     void setJScrollPane(JScrollPane scrollPane) {
         this.scrollPane = scrollPane;
+
+        scrollPane.addMouseWheelListener(e -> {
+            if (e.isControlDown()) {
+                scrollPane.setWheelScrollingEnabled(false);
+                System.out.println();
+                if (e.getPreciseWheelRotation() < -0.1) {
+                    scale *= 1.02;
+                } else if (e.getPreciseWheelRotation() > 0.1) {
+                    scale /= 1.02;
+                }
+                repaint();
+            } else {
+                scrollPane.setWheelScrollingEnabled(true);
+            }
+        });
     }
 
     void initiateViewPoint() {

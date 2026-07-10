@@ -24,7 +24,7 @@ public class MouseController extends MouseAdapter {
         for (Vertex v : application.graph.getVertices()) {
             Point vertexPoint = new Point(v.getX() + canvas.offsetX, v.getY() + canvas.offsetY);
             double distance = vertexPoint.distance(p);
-            if (distance <= 20)
+            if (distance <= canvas.VERTEX_RADIUS * canvas.scale)
                 return v;
         }
         return null;
