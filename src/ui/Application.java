@@ -7,6 +7,7 @@ import java.awt.*;
 public class Application extends JFrame {
     protected final JLabel statusLabel = new JLabel();
     public Graph graph = new Graph();
+    private final Toolbar toolbar;
 
     public Application() {
         setTitle("Визуализатор алгоритма Прима (Прототип)");
@@ -14,18 +15,17 @@ public class Application extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLayout(new BorderLayout());
 
-        // Панель инструментов
-        Toolbar toolbar = new Toolbar(this);
+        toolbar = new Toolbar(this);
         add(toolbar, BorderLayout.NORTH);
 
-        // Холст с графом
-        add(new Canvas(this, toolbar), BorderLayout.CENTER);
+        Canvas canvas = new Canvas(this, toolbar);
+        add(canvas, BorderLayout.CENTER);
 
-        // Панель снизу с ползунком и кнопкой "о разработчиках"
         add(new BottomPanel(this), BorderLayout.SOUTH);
 
-        // Обработка переноса файла или текста в окно приложения
         setTransferHandler(new DragNDropHandler(this));
+
+        setDropTarget(null);
 
         setVisible(true);
     }
