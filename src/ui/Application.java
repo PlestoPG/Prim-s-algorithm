@@ -12,7 +12,7 @@ public class Application extends JFrame {
     public Prim algorithm;
 
     public Application() {
-        setTitle("Визуализатор алгоритма Прима (Прототип)");
+        setTitle("Визуализатор алгоритма Прима (Альфа)");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLayout(new BorderLayout());

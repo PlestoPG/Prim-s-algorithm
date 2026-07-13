@@ -1,14 +1,19 @@
 package ui;
 
+import model.GraphParser;
+
 import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
-import java.nio.file.Files;
+import java.io.IOException;
 import java.util.List;
 
-public class DragnDropHandler extends TransferHandler {
+public class DragNDropHandler extends TransferHandler {
     Application application;
+    Toolbar toolbar;
 
     @Override
     public boolean canImport(TransferSupport support) {
@@ -18,28 +23,26 @@ public class DragnDropHandler extends TransferHandler {
 
     @Override
     public boolean importData(TransferSupport support) {
+        Transferable transferable = support.getTransferable();
         try {
-            String text;
-            Transferable transferable = support.getTransferable();
             if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
                 List<?> files = (List<?>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
                 File file = (File) files.getFirst();
-                text = Files.readString(file.toPath());
+                return GraphParser.parseAndLoad(application, file);
             } else {
-                text = (String) transferable.getTransferData(DataFlavor.stringFlavor);
+                return GraphParser.parseAndLoad(application, (String) transferable.getTransferData(DataFlavor.stringFlavor));
             }
-            // GraphParser parser = new GraphParser();
-            // prototype.graph = parser.parse(string);
-            application.setStatus("Граф загружен");
-            application.repaint();
-            return true;
-        } catch (Exception ex) {
-            application.setStatus("Не удалось загрузить граф");
+        } catch (IOException ex) {
+            application.setStatus("Приложенный файл больше не доступен");
+            return false;
+        } catch (UnsupportedFlavorException ex) {
+            application.setStatus("Приложен неподдерживаемый тип файла");
             return false;
         }
     }
 
-    DragnDropHandler(Application application) {
+    DragNDropHandler(Application application, Toolbar toolbar) {
         this.application = application;
+        this.toolbar = toolbar;
     }
 }
