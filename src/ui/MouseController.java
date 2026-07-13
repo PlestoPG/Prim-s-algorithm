@@ -34,7 +34,7 @@ public class MouseController extends MouseAdapter {
         for (Character symbol1 : ALPHABET.toCharArray())
             for (Character symbol2 : ALPHABET.toCharArray())
                 try {
-                    String name = (symbol1 == '0' ? '\0' : symbol1) + "" + symbol2;
+                    String name = (symbol1 == '0' ? "" : symbol1) + "" + symbol2;
                     application.graph.addVertex(new Vertex(name, x, y));
                     return name;
                 } catch (Exception ignored) {}
