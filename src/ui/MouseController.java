@@ -64,12 +64,7 @@ public class MouseController extends MouseAdapter {
                 String name = placeVertex(event.getPoint().x, event.getPoint().y);
                 application.setStatus("Добавлена вершина " + name);
             }
-            if (application.graph.getVertices().isEmpty()) {
-                toolbar.verticesDisappeared();
-            } else {
-                toolbar.verticesAppeared();
-            }
-            application.repaint();
+            application.graphChanged();
         }
     }
 
@@ -115,6 +110,7 @@ public class MouseController extends MouseAdapter {
                         if (weight < 0)
                             throw new Exception();
                         application.graph.addEdge(selectedVertex.getName(), target.getName(), weight);
+                        application.graphChanged();
                         application.setStatus("Добавлено ребро с весом " + weight + " между вершинами " + selectedVertex.getName() + " и " + target.getName());
                     } catch (Exception ex) {
                         application.setStatus("Вес должен быть неотрицательным числом");

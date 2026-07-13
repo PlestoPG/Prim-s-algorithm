@@ -1,12 +1,15 @@
 package ui;
 
+import algorithm.FileSaver;
 import model.Graph;
 import model.GraphParser;
+import model.Vertex;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 
 public class Toolbar extends JToolBar {
     public final JButton clearButton = new JButton("Очистить");
@@ -22,18 +25,21 @@ public class Toolbar extends JToolBar {
     public void verticesAppeared() {
         clearButton.setEnabled(true);
         saveButton.setEnabled(true);
+        startButton.setEnabled(true);
+        restartButton.setEnabled(true);
     }
 
     public void verticesDisappeared() {
         clearButton.setEnabled(false);
         saveButton.setEnabled(false);
+        startButton.setEnabled(false);
+        restartButton.setEnabled(false);
     }
 
     public Toolbar(Application application) {
         clearButton.addActionListener(e -> {
             application.graph = new Graph();
-            application.repaint();
-            verticesDisappeared();
+            application.graphChanged();
         });
         clearButton.setEnabled(false);
         add(clearButton);
@@ -67,6 +73,18 @@ public class Toolbar extends JToolBar {
 
         addSeparator();
 
+        startButton.addActionListener(e -> {
+            application.algorithm.run((Vertex) application.graph.getVertices().toArray()[0]);
+            try {
+                new FileSaver().save(
+                        "result.txt",
+                        application.algorithm.getMst(),
+                        application.algorithm.getWeight()
+                );
+            } catch (IOException ignored) {}
+            application.repaint();
+            application.setStatus("Минимальное остовное дерево построено! Суммарный вес: " + application.algorithm.getWeight());
+        });
         startButton.setEnabled(false);
         add(startButton);
 
@@ -80,8 +98,7 @@ public class Toolbar extends JToolBar {
         add(backstepButton);
 
         restartButton.addActionListener(e -> {
-            application.graph.reset();
-            application.repaint();
+            application.graphChanged();
             application.setStatus("Граф сброшен к начальному состоянию");
         });
         restartButton.setEnabled(false);

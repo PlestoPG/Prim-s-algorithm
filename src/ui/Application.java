@@ -1,6 +1,7 @@
 package ui;
 
 import model.Graph;
+import algorithm.Prim;
 import javax.swing.*;
 import java.awt.*;
 
@@ -8,6 +9,7 @@ public class Application extends JFrame {
     protected final JLabel statusLabel = new JLabel();
     public Graph graph = new Graph();
     private final Toolbar toolbar;
+    public Prim algorithm;
 
     public Application() {
         setTitle("Визуализатор алгоритма Прима (Прототип)");
@@ -33,6 +35,8 @@ public class Application extends JFrame {
         } else {
             toolbar.verticesAppeared();
         }
+        graph.reset();
+        algorithm = new Prim(graph);
         repaint();
     }
 
