@@ -18,16 +18,22 @@ public class Application extends JFrame {
         toolbar = new Toolbar(this);
         add(toolbar, BorderLayout.NORTH);
 
-        Canvas canvas = new Canvas(this, toolbar);
-        add(canvas, BorderLayout.CENTER);
+        add(new Canvas(this, toolbar), BorderLayout.CENTER);
 
         add(new BottomPanel(this), BorderLayout.SOUTH);
 
-        setTransferHandler(new DragNDropHandler(this));
-
-        setDropTarget(null);
+        setTransferHandler(new DragNDropHandler(this, toolbar));
 
         setVisible(true);
+    }
+
+    public void graphChanged() {
+        if (graph.getVertices().isEmpty()) {
+            toolbar.verticesDisappeared();
+        } else {
+            toolbar.verticesAppeared();
+        }
+        repaint();
     }
 
     public void setStatus(String status) {
