@@ -25,7 +25,14 @@ public class Canvas extends JPanel {
         g.setFont(new Font(defaultFont.getName(), Font.BOLD, VERTEX_RADIUS));
         for (Edge edge : application.graph.getEdges()) {
             String text = edge.getWeight() + "";
-            g.setColor(Color.BLUE);
+            Color color;
+            switch (edge.getState()) {
+                case IN_MST ->  color = Color.GREEN;
+                case CONSIDERED -> color = Color.CYAN;
+                default -> color = Color.BLUE;
+            }
+
+            g.setColor(color);
             g.drawLine(
                     edge.getV1().getX(),
                     edge.getV1().getY(),
@@ -53,23 +60,29 @@ public class Canvas extends JPanel {
                     controller.mousePosition.x,
                     controller.mousePosition.y
             );
-            g.setColor(Color.WHITE);
         }
 
         g2.setStroke(defaultStroke);
         for (Vertex vertex : application.graph.getVertices()) {
-            g.setColor(Color.BLUE);
+            Color color;
+            switch (vertex.getState()) {
+                case IN_MST ->  color = Color.GREEN;
+                case ACTIVE -> color = Color.RED;
+                default -> color = Color.BLUE;
+            }
+
+            g.setColor(color);
             g.fillOval(
                     vertex.getX() - VERTEX_RADIUS,
                     vertex.getY() - VERTEX_RADIUS,
                     VERTEX_RADIUS * 2,
                     VERTEX_RADIUS * 2
             );
-            g.setColor(Color.WHITE);
 
             FontMetrics fm = g.getFontMetrics();
             int textX = vertex.getX() - fm.stringWidth(vertex.getName()) / 2;
             int textY = vertex.getY() + (fm.getAscent() - fm.getDescent()) / 2;
+            g.setColor(Color.WHITE);
             g.drawString(vertex.getName(), textX, textY);
         }
     }
