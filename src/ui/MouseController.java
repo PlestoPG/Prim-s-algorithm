@@ -6,11 +6,18 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+enum DragState {
+    NONE,
+    VERTEX,
+    EDGE
+}
+
 public class MouseController extends MouseAdapter {
     Point mousePosition;
     Vertex selectedVertex;
     Application application;
     Toolbar toolbar;
+    DragState dragState;
 
     private Vertex findVertex(Point p) {
         for (Vertex v : application.graph.getVertices()) {
@@ -22,33 +29,42 @@ public class MouseController extends MouseAdapter {
         return null;
     }
 
-    private void placeVertex(int x, int y) {
+    private String placeVertex(int x, int y) {
         String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        for (Character symbol1 : (' ' + ALPHABET).toCharArray())
+        for (Character symbol1 : ALPHABET.toCharArray())
             for (Character symbol2 : ALPHABET.toCharArray())
                 try {
-                    application.graph.addVertex(new Vertex(symbol1 + "" + symbol2, x, y));
-                    return;
+                    String name = (symbol1 == '0' ? "" : symbol1) + "" + symbol2;
+                    application.graph.addVertex(new Vertex(name, x, y));
+                    return name;
                 } catch (Exception ignored) {}
+        application.setStatus("Диапазон возможных названий вершин закончился");
+        return null;
     }
 
     @Override
     public void mouseClicked(MouseEvent event) {
         if (SwingUtilities.isRightMouseButton(event)) {
             Vertex vertex = findVertex(event.getPoint());
-            if (vertex != null) {
-                application.graph.removeVertex(vertex.getName());
-                application.setStatus("Удалена вершина в (" + event.getX() + ", " + event.getY() + ")");
+            if (vertex != null && event.isControlDown() && dragState != DragState.VERTEX) {
+                dragState = DragState.VERTEX;
+                selectedVertex = vertex;
+                mousePosition = event.getPoint();
+                application.setStatus("Взята вершина " + selectedVertex.getName());
+            } else if (vertex != null && dragState != DragState.VERTEX) {
+                String name = vertex.getName();
+                application.graph.removeVertex(name);
+                application.setStatus("Удалена вершина " + name);
+            } else if (dragState == DragState.VERTEX) {
+                dragState = DragState.NONE;
+                application.setStatus("Поставлена вершина " + selectedVertex.getName());
+                selectedVertex = null;
+                mousePosition = null;
             } else {
-                placeVertex(event.getPoint().x, event.getPoint().y);
-                application.setStatus("Добавлена вершина в (" + event.getX() + ", " + event.getY() + ")");
+                String name = placeVertex(event.getPoint().x, event.getPoint().y);
+                application.setStatus("Добавлена вершина " + name);
             }
-            if (application.graph.getVertices().isEmpty()) {
-                toolbar.verticesDisappeared();
-            } else {
-                toolbar.verticesAppeared();
-            }
-            application.repaint();
+            application.graphChanged();
         }
     }
 
@@ -59,12 +75,21 @@ public class MouseController extends MouseAdapter {
     }
 
     @Override
-    public void mousePressed(MouseEvent e) {
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            selectedVertex = findVertex(e.getPoint());
+    public void mouseMoved(MouseEvent e) {
+        if (dragState == DragState.VERTEX) {
+            selectedVertex.setX(e.getX());
+            selectedVertex.setY(e.getY());
+        }
+        application.repaint();
+    }
 
+    @Override
+    public void mousePressed(MouseEvent event) {
+        if (SwingUtilities.isLeftMouseButton(event)) {
+            selectedVertex = findVertex(event.getPoint());
             if (selectedVertex != null) {
-                mousePosition = e.getPoint();
+                dragState = DragState.EDGE;
+                mousePosition = event.getPoint();
                 application.repaint();
             }
         }
@@ -74,28 +99,33 @@ public class MouseController extends MouseAdapter {
     public void mouseReleased(MouseEvent e) {
         if (selectedVertex != null) {
             Vertex target = findVertex(e.getPoint());
-
-            // Если отпустили на другую вершину
-            if (target != null && target != selectedVertex) {
-                String result = JOptionPane.showInputDialog(
-                    application,
-                    "Введите вес ребра:"
-                );
-                try {
-                    int weight = Integer.parseInt(result);
-                    application.graph.addEdge(selectedVertex.getName(), target.getName(), weight);
-                    application.setStatus("Добавлено ребро с весом " + weight + " между вершинами " + selectedVertex.getName() + " и " + target.getName());
-                } catch(Exception ex) {
-                    application.setStatus("Вес должен быть неотрицательным числом");
+            if (dragState == DragState.EDGE) {
+                if (target != null && target != selectedVertex) {
+                    String result = JOptionPane.showInputDialog(
+                            application,
+                            "Введите вес ребра:"
+                    );
+                    try {
+                        int weight = Integer.parseInt(result);
+                        if (weight < 0)
+                            throw new Exception();
+                        application.graph.addEdge(selectedVertex.getName(), target.getName(), weight);
+                        application.graphChanged();
+                        application.setStatus("Добавлено ребро с весом " + weight + " между вершинами " + selectedVertex.getName() + " и " + target.getName());
+                    } catch (Exception ex) {
+                        application.setStatus("Вес должен быть неотрицательным числом");
+                    }
                 }
+                dragState = DragState.NONE;
+                selectedVertex = null;
+                mousePosition = null;
+                application.repaint();
             }
-            selectedVertex = null;
-            mousePosition = null;
-            application.repaint();
         }
     }
 
     MouseController(Application application, Toolbar toolbar) {
+        this.dragState = DragState.NONE;
         this.application = application;
         this.toolbar = toolbar;
     }
