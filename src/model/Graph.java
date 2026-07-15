@@ -30,7 +30,7 @@ public class Graph {
         if (v1 != null && v2 != null) {
             for (Edge e : adjMap.get(v1)) {
                 if (e.getOpposite(v1).equals(v2)) {
-                    throw new IllegalArgumentException("Edge already exists between these vertices");
+                    throw new IllegalArgumentException("Ребро между этими вершинами уже существует");
                 }
             }
             Edge e = new Edge(v1, v2, w);
