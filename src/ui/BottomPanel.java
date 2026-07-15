@@ -23,14 +23,7 @@ public class BottomPanel extends JPanel {
         JPanel controlPanel = new JPanel(new BorderLayout());
 
         JButton aboutButton = new JButton("Информация о разработчиках");
-        aboutButton.addActionListener(e -> JOptionPane.showMessageDialog(
-                application,
-            """
-                    Бригада №8
-                    Рогачевский К.А. 4344
-                    Захарова М.И. 4344
-                    Кяримов А.И. 4381"""
-        ));
+        aboutButton.addActionListener(e -> new AboutDevsWindow(application));
         controlPanel.add(aboutButton, BorderLayout.WEST);
 
         speedSlider = new JSlider(0, 5000, DEFAULT_DELAY);
