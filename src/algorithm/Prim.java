@@ -13,7 +13,6 @@ public class Prim {
     private final PriorityQueue<Edge> pq;
     private final Set<Vertex> visited;
     private final List<Edge> mst;
-    private Vertex start;
     private int weight;
     private boolean done;
     public Prim(Graph graph) {
