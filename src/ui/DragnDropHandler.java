@@ -13,7 +13,6 @@ import java.util.List;
 
 public class DragNDropHandler extends TransferHandler {
     Application application;
-    Toolbar toolbar;
 
     @Override
     public boolean canImport(TransferSupport support) {
@@ -41,8 +40,7 @@ public class DragNDropHandler extends TransferHandler {
         }
     }
 
-    DragNDropHandler(Application application, Toolbar toolbar) {
+    DragNDropHandler(Application application) {
         this.application = application;
-        this.toolbar = toolbar;
     }
 }

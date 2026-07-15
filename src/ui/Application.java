@@ -19,7 +19,7 @@ public class Application extends JFrame {
     public Prim algorithm;
 
     public Application() {
-        setTitle("Визуализатор алгоритма Прима (Альфа)");
+        setTitle("Визуализатор алгоритма Прима (Бета)");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLayout(new BorderLayout());
@@ -33,7 +33,7 @@ public class Application extends JFrame {
         bottomPanel = new BottomPanel(this);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        setTransferHandler(new DragNDropHandler(this, toolbar));
+        setTransferHandler(new DragNDropHandler(this));
 
         setVisible(true);
     }
