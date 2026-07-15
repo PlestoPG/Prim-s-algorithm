@@ -6,7 +6,7 @@ public class Graph {
     private final Map<Vertex, Set<Edge>> adjMap = new HashMap<>();
     public void addVertex(Vertex v) {
         if (vertexMap.containsKey(v.getName())) {
-            throw new IllegalArgumentException("Vertex with this name already exists");
+            throw new IllegalArgumentException("Вершина с таким именем уже существует");
         }
         vertexMap.put(v.getName(), v);
         adjMap.put(v, new LinkedHashSet<>());
