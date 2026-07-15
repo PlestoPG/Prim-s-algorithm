@@ -19,10 +19,7 @@ public class Graph {
                 for (Edge e : incident) {
                     edgeSet.remove(e);
                     Vertex opp = e.getOpposite(v);
-                    Set<Edge> oppEdges = adjMap.get(opp);
-                    if (oppEdges != null) {
-                        oppEdges.remove(e);
-                    }
+                    adjMap.get(opp).remove(e);
                 }
             }
         }
@@ -31,6 +28,11 @@ public class Graph {
         Vertex v1 = vertexMap.get(n1);
         Vertex v2 = vertexMap.get(n2);
         if (v1 != null && v2 != null) {
+            for (Edge e : adjMap.get(v1)) {
+                if (e.getOpposite(v1).equals(v2)) {
+                    throw new IllegalArgumentException("Edge already exists between these vertices");
+                }
+            }
             Edge e = new Edge(v1, v2, w);
             edgeSet.add(e);
             adjMap.get(v1).add(e);
