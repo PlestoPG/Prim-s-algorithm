@@ -31,6 +31,13 @@ public class Application extends JFrame {
         // Холст с графом
         canvas = new Canvas(this, toolbar);
         JScrollPane scrollPane = new JScrollPane(canvas);
+        scrollPane.getViewport().addChangeListener(e -> {
+            Canvas.view = scrollPane.getViewport().getViewRect();
+            Canvas.view.x += Canvas.DISTANCE_FROM_BORDER_TO_RESIZE;
+            Canvas.view.y += Canvas.DISTANCE_FROM_BORDER_TO_RESIZE;
+            Canvas.view.width -= Canvas.DISTANCE_FROM_BORDER_TO_RESIZE * 2;
+            Canvas.view.height -= Canvas.DISTANCE_FROM_BORDER_TO_RESIZE * 2;
+        });
         canvas.setJScrollPane(scrollPane);
         canvas.setPreferredSize(new Dimension(getWidth() * 2, getHeight() * 2));
         add(scrollPane, BorderLayout.CENTER);

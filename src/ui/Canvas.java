@@ -7,6 +7,7 @@ import ui.toolbar.Toolbar;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
+import java.util.Random;
 
 public class Canvas extends JPanel {
     Application application;
@@ -14,14 +15,24 @@ public class Canvas extends JPanel {
     MouseController controller;
     StartMouseController startController;
     MouseAdapter currentController;
-    public int offsetX = 0;
-    public int offsetY = 0;
+    static public int offsetX = 0;
+    static public int offsetY = 0;
     public double scale = 1;
 
-    int DISTANCE_FROM_BORDER_TO_RESIZE = 50;
-    int RESIZE_QUANTITY = 100;
+    public static int DISTANCE_FROM_BORDER_TO_RESIZE = 50;
+    public static int RESIZE_QUANTITY = 100;
     public static int VERTEX_RADIUS = 20;
     public static int EDGE_WIDTH = 10;
+
+    static private final Random RAND = new Random();
+
+    static public Rectangle view = new Rectangle(50, 50, 500, 500);
+
+    static public Point randomPoint() {
+        int x = view.x + RAND.nextInt(view.width) - offsetX;
+        int y = view.y + RAND.nextInt(view.height) - offsetY;
+        return new Point(x, y);
+    }
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -164,6 +175,8 @@ public class Canvas extends JPanel {
                 (int) (getPreferredSize().width * 0.25),
                 (int) (getPreferredSize().height * 0.25)
         ));
+        JViewport viewport = scrollPane.getViewport();
+        view = viewport.getViewRect();
     }
 
     public void chooseStartVertexMode() {

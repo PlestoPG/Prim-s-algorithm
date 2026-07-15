@@ -1,12 +1,15 @@
 package model;
 
 import ui.Application;
+import ui.Canvas;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class GraphParser {
@@ -78,16 +81,17 @@ public class GraphParser {
                 throw new ParseException("Неверный формат веса в строке " + (i + 1) + ": " + matcher.group(3));
             }
 
-            Random rand = new Random();
             boolean v1Exists = graph.getVertices().stream().anyMatch(v -> v.getName().equals(vertex1Name));
             boolean v2Exists = graph.getVertices().stream().anyMatch(v -> v.getName().equals(vertex2Name));
 
             if (!v1Exists) {
-                graph.addVertex(new Vertex(vertex1Name, 100 + rand.nextInt(500), 100 + rand.nextInt(400)));
+                Point point = Canvas.randomPoint();
+                graph.addVertex(new Vertex(vertex1Name, point.x, point.y));
                 System.out.println("Добавлена вершина: " + vertex1Name);
             }
             if (!v2Exists) {
-                graph.addVertex(new Vertex(vertex2Name, 100 + rand.nextInt(500), 100 + rand.nextInt(400)));
+                Point point = Canvas.randomPoint();
+                graph.addVertex(new Vertex(vertex2Name, point.x, point.y));
                 System.out.println("Добавлена вершина: " + vertex2Name);
             }
 
