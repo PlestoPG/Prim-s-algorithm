@@ -1,9 +1,9 @@
 package ui;
 
 import model.GraphParser;
+import ui.toolbar.Toolbar;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;

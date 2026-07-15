@@ -1,45 +1,53 @@
-package ui;
+package ui.toolbar;
 
-import algorithm.FileSaver;
 import model.Graph;
 import model.GraphParser;
-import model.Vertex;
+import ui.Application;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 
 public class Toolbar extends JToolBar {
     public final JButton clearButton = new JButton("Очистить");
     public final JButton loadButton = new JButton("Загрузить");
     public final JButton saveButton = new JButton("Сохранить");
-    public final JButton startButton = new JButton("Старт");
-    public final JButton pauseButton = new JButton("Пауза");
-    public final JButton stepButton = new JButton("Шаг");
-    public final JButton backstepButton = new JButton("Назад");
-    public final JButton restartButton = new JButton("Рестарт");
     public final JButton helpButton = new JButton("Помощь");
+    private int index;
+    private final JButton toAlgorithmButton = new JButton("Перейти к алгоритму");
+    private final JToolBar toggleToolbar;
+    private final AlgorithmToolbar algorithmToolbar;
 
     public void verticesAppeared() {
         clearButton.setEnabled(true);
         saveButton.setEnabled(true);
-        startButton.setEnabled(true);
-        restartButton.setEnabled(true);
+        remove(index);
+        add(toggleToolbar, index);
+        toAlgorithmButton.setEnabled(true);
+        repaint();
     }
 
     public void verticesDisappeared() {
         clearButton.setEnabled(false);
         saveButton.setEnabled(false);
-        startButton.setEnabled(false);
-        restartButton.setEnabled(false);
+        remove(index);
+        add(toggleToolbar, index);
+        toAlgorithmButton.setEnabled(false);
+        repaint();
+    }
+
+    public void startChosen() {
+        algorithmToolbar.startChosen();
     }
 
     public Toolbar(Application application) {
+        setFloatable(false);
+
         clearButton.addActionListener(e -> {
             application.graph = new Graph();
             application.graphChanged();
+            application.setStatus("Холст был очищен");
         });
         clearButton.setEnabled(false);
         add(clearButton);
@@ -73,36 +81,22 @@ public class Toolbar extends JToolBar {
 
         addSeparator();
 
-        startButton.addActionListener(e -> {
-            application.algorithm.run((Vertex) application.graph.getVertices().toArray()[0]);
-            try {
-                new FileSaver().save(
-                        "result.txt",
-                        application.algorithm.getMst(),
-                        application.algorithm.getWeight()
-                );
-            } catch (IOException ignored) {}
-            application.repaint();
-            application.setStatus("Минимальное остовное дерево построено! Суммарный вес: " + application.algorithm.getWeight());
+        algorithmToolbar = new AlgorithmToolbar(application);
+        toAlgorithmButton.addActionListener(e -> {
+            remove(index);
+            algorithmToolbar.reset();
+            add(algorithmToolbar, index);
+            revalidate();
+            repaint();
+            application.chooseStartVertex();
         });
-        startButton.setEnabled(false);
-        add(startButton);
+        toAlgorithmButton.setEnabled(false);
 
-        pauseButton.setEnabled(false);
-        add(pauseButton);
-
-        stepButton.setEnabled(false);
-        add(stepButton);
-
-        backstepButton.setEnabled(false);
-        add(backstepButton);
-
-        restartButton.addActionListener(e -> {
-            application.graphChanged();
-            application.setStatus("Граф сброшен к начальному состоянию");
-        });
-        restartButton.setEnabled(false);
-        add(restartButton);
+        toggleToolbar = new JToolBar();
+        toggleToolbar.setFloatable(false);
+        toggleToolbar.add(toAlgorithmButton);
+        add(toggleToolbar);
+        index = getComponentIndex(toggleToolbar);
 
         addSeparator();
 
@@ -136,8 +130,6 @@ public class Toolbar extends JToolBar {
             A C 7"""
         ));
         add(helpButton);
-
-        setFloatable(false);
     }
 
     private void loadFromFile(Application application) {

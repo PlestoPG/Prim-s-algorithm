@@ -11,13 +11,15 @@ import java.util.Set;
 public class Prim {
     private final Graph graph;
     private final List<Edge> mst;
+    private Vertex start;
     private int weight;
     public Prim(Graph graph) {
         this.graph = graph;
         this.mst = new ArrayList<>();
         this.weight = 0;
     }
-    public void run(Vertex start) {
+    public void setStart(Vertex start) { this.start = start; }
+    public void run() {
         graph.reset();
         mst.clear();
         weight = 0;

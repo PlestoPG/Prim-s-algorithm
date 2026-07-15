@@ -2,16 +2,20 @@ package ui;
 
 import model.Edge;
 import model.Vertex;
+import ui.toolbar.Toolbar;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
 
 public class Canvas extends JPanel {
     Application application;
     MouseController controller;
+    StartMouseController startController;
+    MouseAdapter currentController;
 
-    int VERTEX_RADIUS = 20;
-    int EDGE_WIDTH = 10;
+    public static int VERTEX_RADIUS = 20;
+    public static int EDGE_WIDTH = 10;
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -19,7 +23,6 @@ public class Canvas extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         Stroke defaultStroke = g2.getStroke();
         g2.setStroke(new BasicStroke(EDGE_WIDTH, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-
 
         Font defaultFont = g.getFont();
         g.setFont(new Font(defaultFont.getName(), Font.BOLD, VERTEX_RADIUS));
@@ -87,6 +90,24 @@ public class Canvas extends JPanel {
         }
     }
 
+    public void chooseStartVertexMode() {
+        if (currentController == startController)
+            return;
+        removeMouseListener(controller);
+        removeMouseMotionListener(controller);
+        addMouseListener(startController);
+        currentController = startController;
+    }
+
+    public void resetMouseController() {
+        if (currentController == controller)
+            return;
+        removeMouseListener(startController);
+        addMouseListener(controller);
+        addMouseMotionListener(controller);
+        currentController = controller;
+    }
+
     Canvas(Application application, Toolbar toolbar) {
         this.application = application;
 
@@ -95,5 +116,8 @@ public class Canvas extends JPanel {
         this.controller = new MouseController(application, toolbar);
         addMouseListener(controller);
         addMouseMotionListener(controller);
+        currentController = controller;
+
+        this.startController = new StartMouseController(application, this);
     }
 }

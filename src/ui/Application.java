@@ -2,11 +2,15 @@ package ui;
 
 import model.Graph;
 import algorithm.Prim;
+import model.Vertex;
+import ui.toolbar.Toolbar;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class Application extends JFrame {
     protected final JLabel statusLabel = new JLabel();
+    private final Canvas canvas;
     public Graph graph = new Graph();
     private final Toolbar toolbar;
     public Prim algorithm;
@@ -20,13 +24,30 @@ public class Application extends JFrame {
         toolbar = new Toolbar(this);
         add(toolbar, BorderLayout.NORTH);
 
-        add(new Canvas(this, toolbar), BorderLayout.CENTER);
+        canvas = new Canvas(this, toolbar);
+        add(canvas, BorderLayout.CENTER);
 
         add(new BottomPanel(this), BorderLayout.SOUTH);
 
         setTransferHandler(new DragNDropHandler(this, toolbar));
 
         setVisible(true);
+    }
+
+    public void chooseStartVertex() {
+        setStatus("Выберите начальную вершину");
+        canvas.chooseStartVertexMode();
+    }
+
+    public void setStartVertex(Vertex vertex) {
+        algorithm.setStart(vertex);
+        vertex.setState(Vertex.State.IN_MST);
+        canvas.repaint();
+        toolbar.startChosen();
+    }
+
+    public void canvasRepaint() {
+        canvas.repaint();
     }
 
     public void graphChanged() {
@@ -36,6 +57,7 @@ public class Application extends JFrame {
             toolbar.verticesAppeared();
         }
         graph.reset();
+        canvas.resetMouseController();
         algorithm = new Prim(graph);
         repaint();
     }
