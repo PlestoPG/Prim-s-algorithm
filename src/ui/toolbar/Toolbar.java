@@ -15,7 +15,7 @@ public class Toolbar extends JToolBar {
     public final JButton saveButton = new JButton("Сохранить");
     public final JButton helpButton = new JButton("Помощь");
     private int index;
-    private final JButton toAlgorithmButton = new JButton("Перейти к алгоритму");
+    private final JButton toAlgorithmButton = new JButton("Выбрать стартовую вершину");
     private final JToolBar toggleToolbar;
     private final AlgorithmToolbar algorithmToolbar;
 
@@ -25,6 +25,7 @@ public class Toolbar extends JToolBar {
         remove(index);
         add(toggleToolbar, index);
         toAlgorithmButton.setEnabled(true);
+        algorithmToolbar.reset();
         repaint();
     }
 
@@ -34,6 +35,7 @@ public class Toolbar extends JToolBar {
         remove(index);
         add(toggleToolbar, index);
         toAlgorithmButton.setEnabled(false);
+        algorithmToolbar.reset();
         repaint();
     }
 

@@ -8,11 +8,14 @@ import ui.toolbar.Toolbar;
 import javax.swing.*;
 import java.awt.*;
 
+import static ui.BottomPanel.DEFAULT_DELAY;
+
 public class Application extends JFrame {
     protected final JLabel statusLabel = new JLabel();
     private final Canvas canvas;
     public Graph graph = new Graph();
     private final Toolbar toolbar;
+    private final BottomPanel bottomPanel;
     public Prim algorithm;
 
     public Application() {
@@ -27,7 +30,8 @@ public class Application extends JFrame {
         canvas = new Canvas(this, toolbar);
         add(canvas, BorderLayout.CENTER);
 
-        add(new BottomPanel(this), BorderLayout.SOUTH);
+        bottomPanel = new BottomPanel(this);
+        add(bottomPanel, BorderLayout.SOUTH);
 
         setTransferHandler(new DragNDropHandler(this, toolbar));
 
@@ -64,6 +68,12 @@ public class Application extends JFrame {
 
     public void setStatus(String status) {
         statusLabel.setText(status);
+    }
+
+    public int getStepDelay() {
+        if (bottomPanel == null)
+            return DEFAULT_DELAY;
+        return bottomPanel.getStepDelay();
     }
 
     public static void main(String[] args) {
