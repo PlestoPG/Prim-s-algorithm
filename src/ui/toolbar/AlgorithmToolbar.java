@@ -1,10 +1,9 @@
 package ui.toolbar;
 
-import algorithm.FileSaver;
+import util.FileSaver;
 import ui.Application;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.IOException;
 
 public class AlgorithmToolbar extends JToolBar {
@@ -42,10 +41,10 @@ public class AlgorithmToolbar extends JToolBar {
     public void algorithmEnded(Application application) {
         reset();
         try {
-            new FileSaver().save(
-                    "result.txt",
-                    application.algorithm.getMst(),
-                    application.algorithm.getWeight()
+            FileSaver.save(
+                "result.txt",
+                application.algorithm.getMst(),
+                application.algorithm.getWeight()
             );
         } catch (IOException ignored) {}
         restartButton.setEnabled(true);

@@ -3,11 +3,13 @@ package ui.toolbar;
 import model.Graph;
 import model.GraphParser;
 import ui.Application;
+import util.FileSaver;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 
 public class Toolbar extends JToolBar {
     public final JButton clearButton = new JButton("Очистить");
@@ -76,7 +78,13 @@ public class Toolbar extends JToolBar {
         add(loadButton);
 
         saveButton.addActionListener(e -> {
-//            prototype.graph.save();
+            String path = "graph.txt";
+            try {
+                FileSaver.save(path, application.graph);
+                application.setStatus("Граф был сохранён в файл " + path);
+            } catch (IOException ignored) {
+                application.setStatus("Не удалось сохранить граф в файл " + path);
+            }
         });
         saveButton.setEnabled(false);
         add(saveButton);
@@ -108,7 +116,7 @@ public class Toolbar extends JToolBar {
             Очистить - удаляет все вершины и рёбра текущего графа
             Загрузить - загрузить граф из файла или ввести вручную
                 Загрузить граф также возможно перетаскиванием в окно приложения файла
-            Сохранить - сохранить текущий граф в файл (в разработке)
+            Сохранить - сохранить текущий граф в файл
             
             Старт - начать пошаговое выполнение алгоритма со скоростью, заданной ползунком в нижнем правом углу
             Пауза - остановить пошаговое выполнение алгоритма
