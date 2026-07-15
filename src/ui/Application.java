@@ -29,7 +29,7 @@ public class Application extends JFrame {
         add(toolbar, BorderLayout.NORTH);
 
         // Холст с графом
-        Canvas canvas = new Canvas(this, toolbar);
+        canvas = new Canvas(this, toolbar);
         JScrollPane scrollPane = new JScrollPane(canvas);
         canvas.setJScrollPane(scrollPane);
         canvas.setPreferredSize(new Dimension(getWidth() * 2, getHeight() * 2));

@@ -13,7 +13,7 @@ public class StartMouseController extends MouseAdapter {
 
     @Override
     public void mouseClicked(MouseEvent event) {
-        Vertex vertex = FindVertex.byPoint(application.graph, event.getPoint());
+        Vertex vertex = FindVertex.byPoint(canvas, application.graph, event.getPoint());
         if (vertex == null)
             return;
         application.setStartVertex(vertex);

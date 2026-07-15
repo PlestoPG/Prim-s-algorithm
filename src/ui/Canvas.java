@@ -14,9 +14,9 @@ public class Canvas extends JPanel {
     MouseController controller;
     StartMouseController startController;
     MouseAdapter currentController;
-    int offsetX = 0;
-    int offsetY = 0;
-    double scale = 1;
+    public int offsetX = 0;
+    public int offsetY = 0;
+    public double scale = 1;
 
     int DISTANCE_FROM_BORDER_TO_RESIZE = 50;
     int RESIZE_QUANTITY = 100;

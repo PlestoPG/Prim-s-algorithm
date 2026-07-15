@@ -85,7 +85,7 @@ public class MouseController extends MouseAdapter {
     @Override
     public void mousePressed(MouseEvent event) {
         if (SwingUtilities.isLeftMouseButton(event)) {
-            selectedVertex = FindVertex.byPoint(application.graph, event.getPoint());
+            selectedVertex = FindVertex.byPoint(canvas, application.graph, event.getPoint());
             if (selectedVertex != null) {
                 dragState = DragState.EDGE;
                 mousePosition = event.getPoint();
@@ -97,7 +97,7 @@ public class MouseController extends MouseAdapter {
     @Override
     public void mouseReleased(MouseEvent e) {
         if (selectedVertex != null) {
-            Vertex target = FindVertex.byPoint(application.graph, e.getPoint());
+            Vertex target = FindVertex.byPoint(canvas, application.graph, e.getPoint());
             if (dragState == DragState.EDGE) {
                 if (target != null && target != selectedVertex) {
                     String result = JOptionPane.showInputDialog(
