@@ -18,6 +18,7 @@ public class MouseController extends MouseAdapter {
     Point mousePosition;
     Vertex selectedVertex;
     Application application;
+    Canvas canvas;
     Toolbar toolbar;
     DragState dragState;
 
@@ -37,7 +38,7 @@ public class MouseController extends MouseAdapter {
     @Override
     public void mouseClicked(MouseEvent event) {
         if (SwingUtilities.isRightMouseButton(event)) {
-            Vertex vertex = FindVertex.byPoint(application.graph, event.getPoint());
+            Vertex vertex = FindVertex.byPoint(canvas, application.graph, event.getPoint());
             if (vertex != null && event.isControlDown() && dragState != DragState.VERTEX) {
                 dragState = DragState.VERTEX;
                 selectedVertex = vertex;
@@ -54,10 +55,12 @@ public class MouseController extends MouseAdapter {
                 application.setStatus("Поставлена вершина " + selectedVertex.getName());
                 selectedVertex = null;
                 mousePosition = null;
+                canvas.increaseSize(event.getPoint().x, event.getPoint().y);
                 application.canvasRepaint();
             } else {
-                String name = placeVertex(event.getPoint().x, event.getPoint().y);
+                String name = placeVertex(event.getPoint().x - canvas.offsetX, event.getPoint().y - canvas.offsetY);
                 application.setStatus("Добавлена вершина " + name);
+                canvas.increaseSize(event.getPoint().x, event.getPoint().y);
                 application.graphChanged();
             }
         }
@@ -72,8 +75,9 @@ public class MouseController extends MouseAdapter {
     @Override
     public void mouseMoved(MouseEvent e) {
         if (dragState == DragState.VERTEX) {
-            selectedVertex.setX(e.getX());
-            selectedVertex.setY(e.getY());
+            selectedVertex.setX(e.getX() - canvas.offsetX);
+            selectedVertex.setY(e.getY() - canvas.offsetY);
+            canvas.increaseSize(e.getX(), e.getY());
         }
         application.canvasRepaint();
     }
@@ -119,9 +123,10 @@ public class MouseController extends MouseAdapter {
         }
     }
 
-    MouseController(Application application, Toolbar toolbar) {
+    MouseController(Application application, Canvas canvas, Toolbar toolbar) {
         this.dragState = DragState.NONE;
         this.application = application;
+        this.canvas = canvas;
         this.toolbar = toolbar;
     }
 }

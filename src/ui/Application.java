@@ -21,14 +21,19 @@ public class Application extends JFrame {
     public Application() {
         setTitle("Визуализатор алгоритма Прима (Бета)");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setSize(Toolkit.getDefaultToolkit().getScreenSize());
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         toolbar = new Toolbar(this);
         add(toolbar, BorderLayout.NORTH);
 
-        canvas = new Canvas(this, toolbar);
-        add(canvas, BorderLayout.CENTER);
+        // Холст с графом
+        Canvas canvas = new Canvas(this, toolbar);
+        JScrollPane scrollPane = new JScrollPane(canvas);
+        canvas.setJScrollPane(scrollPane);
+        canvas.setPreferredSize(new Dimension(getWidth() * 2, getHeight() * 2));
+        add(scrollPane, BorderLayout.CENTER);
 
         bottomPanel = new BottomPanel(this);
         add(bottomPanel, BorderLayout.SOUTH);
@@ -36,6 +41,7 @@ public class Application extends JFrame {
         setTransferHandler(new DragNDropHandler(this));
 
         setVisible(true);
+        SwingUtilities.invokeLater(canvas::initiateViewPoint);
     }
 
     public void chooseStartVertex() {
