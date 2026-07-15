@@ -9,7 +9,7 @@ public class AboutDevsWindow extends JPanel {
     int height;
     int min;
 
-    private JPanel appendMember(String path, String name) {
+    private JPanel appendMember(String path, String name, Font font) {
         JPanel member = new JPanel(new BorderLayout());
         URL imageURL = getClass().getResource(path);
         if (imageURL != null) {
@@ -33,7 +33,9 @@ public class AboutDevsWindow extends JPanel {
                 member.add(image, BorderLayout.NORTH);
             }
         }
-        member.add(new JLabel(name, SwingConstants.CENTER), BorderLayout.CENTER);
+        JLabel nameLabel = new JLabel(name, SwingConstants.CENTER);
+        nameLabel.setFont(font);
+        member.add(nameLabel, BorderLayout.CENTER);
         add(member);
         return member;
     }
@@ -50,10 +52,17 @@ public class AboutDevsWindow extends JPanel {
         this.height = bounds.height - insets.top - insets.bottom;
         this.min = Math.min(bounds.width, bounds.height) - 100;
 
-        add(new JLabel("Бригада №5"));
-        add(appendMember("/media/Kirill.jpg", "Рогачевский Кирилл Андреевич 4344"));
-        add(appendMember("/media/Marina.jpg", "Захарова Марина Игоревна 4344"));
-        add(appendMember("/media/Amirkhan.jpg", "Кяримов Амирхан Икрам Оглы 4381"));
+        Font font = getFont();
+        font = new Font(font.getFamily(), Font.BOLD, font.getSize() * 3);
+        JLabel title = new JLabel("Бригада №5",  SwingConstants.CENTER);
+        title.setFont(font);
+        JPanel titlePanel = new JPanel(new BorderLayout());
+        titlePanel.add(title, BorderLayout.CENTER);
+        add(titlePanel);
+
+        add(appendMember("/media/Kirill.jpg", "Рогачевский Кирилл Андреевич 4344", font));
+        add(appendMember("/media/Marina.jpg", "Захарова Марина Игоревна 4344", font));
+        add(appendMember("/media/Amirkhan.jpg", "Кяримов Амирхан Икрам Оглы 4381", font));
 
         JScrollPane scrollPane = new JScrollPane(this);
         scrollPane.setPreferredSize(new Dimension(min + 100, height - 100));
