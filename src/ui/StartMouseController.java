@@ -17,7 +17,6 @@ public class StartMouseController extends MouseAdapter {
         if (vertex == null)
             return;
         application.setStartVertex(vertex);
-        application.setStatus("Выбрана вершина " + vertex.getName());
         canvas.resetMouseController();
     }
 

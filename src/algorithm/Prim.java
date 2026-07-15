@@ -24,8 +24,6 @@ public class Prim {
         this.weight = 0;
         this.done = false;
     }
-    public void setStart(Vertex start) { this.start = start; }
-    public void run() {
     public void start(Vertex start) {
         graph.reset();
         pq.clear();

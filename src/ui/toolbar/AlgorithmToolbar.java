@@ -8,6 +8,7 @@ import java.awt.*;
 import java.io.IOException;
 
 public class AlgorithmToolbar extends JToolBar {
+    public final JButton endButton = new JButton("В конец");
     public final JButton startButton = new JButton("Старт");
     public final JButton pauseButton = new JButton("Пауза");
     public final JButton stepButton = new JButton("Шаг");
@@ -15,6 +16,7 @@ public class AlgorithmToolbar extends JToolBar {
     public final JButton restartButton = new JButton("Рестарт");
 
     public void reset() {
+        endButton.setEnabled(false);
         startButton.setEnabled(false);
         pauseButton.setEnabled(false);
         stepButton.setEnabled(false);
@@ -23,20 +25,23 @@ public class AlgorithmToolbar extends JToolBar {
     }
 
     public void startChosen() {
-        startButton.setEnabled(true);
+        endButton.setEnabled(true);
+//        startButton.setEnabled(true);
+        stepButton.setEnabled(true);
+//        backstepButton.setEnabled(true);
         restartButton.setEnabled(true);
     }
 
-    public void verticesDisappeared() {
-        startButton.setEnabled(false);
-        restartButton.setEnabled(false);
+    public void algorithmEnded() {
+        reset();
+        restartButton.setEnabled(true);
     }
 
     AlgorithmToolbar(Application application) {
         setFloatable(false);
         setBorderPainted(false);
 
-        startButton.addActionListener(e -> {
+        endButton.addActionListener(e -> {
             application.algorithm.run();
             try {
                 new FileSaver().save(
@@ -45,26 +50,34 @@ public class AlgorithmToolbar extends JToolBar {
                         application.algorithm.getWeight()
                 );
             } catch (IOException ignored) {}
-            application.repaint();
             application.setStatus("Минимальное остовное дерево построено! Суммарный вес: " + application.algorithm.getWeight());
+            algorithmEnded();
+            application.repaint();
         });
-        startButton.setEnabled(false);
+        add(endButton);
+
         add(startButton);
 
-        pauseButton.setEnabled(false);
         add(pauseButton);
 
-        stepButton.setEnabled(false);
+        stepButton.addActionListener(e -> {
+            application.algorithm.step();
+            if (application.algorithm.isDone()) {
+                application.setStatus("Минимальное остовное дерево построено! Суммарный вес: " + application.algorithm.getWeight());
+                algorithmEnded();
+            }
+            application.repaint();
+        });
         add(stepButton);
 
-        backstepButton.setEnabled(false);
         add(backstepButton);
 
         restartButton.addActionListener(e -> {
             application.graphChanged();
             application.setStatus("Граф сброшен к начальному состоянию");
         });
-        restartButton.setEnabled(false);
         add(restartButton);
+
+        reset();
     }
 }

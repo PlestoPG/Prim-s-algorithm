@@ -40,10 +40,10 @@ public class Application extends JFrame {
     }
 
     public void setStartVertex(Vertex vertex) {
-        algorithm.setStart(vertex);
-        vertex.setState(Vertex.State.IN_MST);
-        canvas.repaint();
+        algorithm.start(vertex);
         toolbar.startChosen();
+        setStatus("Начало работы. Стартовая вершина: " + vertex.getName());
+        canvas.repaint();
     }
 
     public void canvasRepaint() {
