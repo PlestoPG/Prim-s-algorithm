@@ -6,7 +6,7 @@ import javax.swing.*;
 public class BottomPanel extends JPanel {
     private final JSlider speedSlider;
 
-    public static int DEFAULT_DELAY = 500;
+    public static int DEFAULT_DELAY = 1000;
 
     public int getStepDelay() { return speedSlider.getValue(); }
 
@@ -33,7 +33,7 @@ public class BottomPanel extends JPanel {
         ));
         controlPanel.add(aboutButton, BorderLayout.WEST);
 
-        speedSlider = new JSlider(0, 3000, DEFAULT_DELAY);
+        speedSlider = new JSlider(0, 5000, DEFAULT_DELAY);
         controlPanel.add(speedSlider, BorderLayout.EAST);
 
         add(statusPanel);

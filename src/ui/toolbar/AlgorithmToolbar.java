@@ -39,8 +39,15 @@ public class AlgorithmToolbar extends JToolBar {
         restartButton.setEnabled(true);
     }
 
-    public void algorithmEnded() {
+    public void algorithmEnded(Application application) {
         reset();
+        try {
+            new FileSaver().save(
+                    "result.txt",
+                    application.algorithm.getMst(),
+                    application.algorithm.getWeight()
+            );
+        } catch (IOException ignored) {}
         restartButton.setEnabled(true);
     }
 
@@ -50,15 +57,8 @@ public class AlgorithmToolbar extends JToolBar {
 
         endButton.addActionListener(e -> {
             application.algorithm.run();
-            try {
-                new FileSaver().save(
-                        "result.txt",
-                        application.algorithm.getMst(),
-                        application.algorithm.getWeight()
-                );
-            } catch (IOException ignored) {}
-            application.setStatus("Минимальное остовное дерево построено! Суммарный вес: " + application.algorithm.getWeight());
-            algorithmEnded();
+            application.setStatus(application.algorithm.getMsg());
+            algorithmEnded(application);
             application.repaint();
         });
         add(endButton);
@@ -68,9 +68,9 @@ public class AlgorithmToolbar extends JToolBar {
             application.algorithm.step();
             if (application.algorithm.isDone()) {
                 self.stop();
-                algorithmEnded();
-                application.setStatus("Минимальное остовное дерево построено! Суммарный вес: " + application.algorithm.getWeight());
+                algorithmEnded(application);
             }
+            application.setStatus(application.algorithm.getMsg());
             application.repaint();
             self.setDelay(application.getStepDelay());
         });
@@ -92,10 +92,9 @@ public class AlgorithmToolbar extends JToolBar {
 
         stepButton.addActionListener(e -> {
             application.algorithm.step();
-            if (application.algorithm.isDone()) {
-                application.setStatus("Минимальное остовное дерево построено! Суммарный вес: " + application.algorithm.getWeight());
-                algorithmEnded();
-            }
+            if (application.algorithm.isDone())
+                algorithmEnded(application);
+            application.setStatus(application.algorithm.getMsg());
             application.repaint();
         });
         add(stepButton);
