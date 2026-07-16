@@ -1,112 +1,94 @@
 package ui.toolbar;
 
-import algorithm.FileSaver;
 import ui.Application;
+import ui.toolbar.buttons.*;
 
 import javax.swing.*;
-import java.awt.*;
-import java.io.IOException;
 
 public class AlgorithmToolbar extends JToolBar {
-    public final JButton endButton = new JButton("В конец");
-    public final JButton startButton = new JButton("Старт");
-    public final JButton pauseButton = new JButton("Пауза");
-    public final JButton stepButton = new JButton("Шаг");
-    public final JButton backstepButton = new JButton("Назад");
-    public final JButton restartButton = new JButton("Рестарт");
-    public final Timer timer;
+    private final Application application;
+    private final JButton endButton;
+    private final JButton startButton;
+    private final JButton pauseButton;
+    private final JButton stepButton;
+    private final JButton backstepButton;
+    private final JButton resultButton;
+    private final AutoCompleter autoCompleter;
 
     public void reset() {
+        startButton.setSelected(false);
+        pauseButton.setSelected(true);
+        autoCompleter.stop();
+    }
+
+    public void resultOnly() {
         endButton.setEnabled(false);
         startButton.setEnabled(false);
-        startButton.setSelected(false);
         pauseButton.setEnabled(false);
-        pauseButton.setSelected(true);
         stepButton.setEnabled(false);
         backstepButton.setEnabled(false);
-        restartButton.setEnabled(false);
-        timer.stop();
+        resultButton.setEnabled(true);
     }
 
-    public void startChosen() {
-        endButton.setEnabled(true);
-        startButton.setEnabled(true);
-        pauseButton.setSelected(false);
-        pauseButton.setEnabled(true);
-        pauseButton.setSelected(true);
-        stepButton.setEnabled(true);
-//        backstepButton.setEnabled(true);
-        restartButton.setEnabled(true);
-    }
-
-    public void algorithmEnded(Application application) {
-        reset();
-        try {
-            new FileSaver().save(
-                    "result.txt",
-                    application.algorithm.getMst(),
-                    application.algorithm.getWeight()
-            );
-        } catch (IOException ignored) {}
-        restartButton.setEnabled(true);
+    public void editButtonsStatus() {
+        startButton.setSelected(autoCompleter.isRunning());
+        pauseButton.setSelected(!autoCompleter.isRunning());
+        if (application.algorithm.isDone()) {
+            endButton.setEnabled(false);
+            startButton.setEnabled(false);
+            pauseButton.setEnabled(false);
+            stepButton.setEnabled(false);
+            backstepButton.setEnabled(true);
+            resultButton.setEnabled(true);
+            autoCompleter.stop();
+        } else if (application.algorithm.getMst().isEmpty()) {
+            endButton.setEnabled(true);
+            startButton.setEnabled(true);
+            pauseButton.setEnabled(true);
+            stepButton.setEnabled(true);
+            backstepButton.setEnabled(false);
+            resultButton.setEnabled(false);
+        } else {
+            endButton.setEnabled(true);
+            startButton.setEnabled(true);
+            pauseButton.setEnabled(true);
+            stepButton.setEnabled(true);
+            backstepButton.setEnabled(true);
+            resultButton.setEnabled(false);
+        }
+        application.setStatus(application.algorithm.getMsg());
+        application.repaint();
     }
 
     AlgorithmToolbar(Application application) {
+        this.application = application;
         setFloatable(false);
         setBorderPainted(false);
+        setBorder(null);
+        setOpaque(false);
 
-        endButton.addActionListener(e -> {
-            application.algorithm.run();
-            application.setStatus(application.algorithm.getMsg());
-            algorithmEnded(application);
-            application.repaint();
-        });
+        endButton = new EndAlgorithmButton(application, this);
         add(endButton);
 
-        timer = new Timer(application.getStepDelay(), e -> {
-            Timer self = (Timer) e.getSource();
-            application.algorithm.step();
-            if (application.algorithm.isDone()) {
-                self.stop();
-                algorithmEnded(application);
-            }
-            application.setStatus(application.algorithm.getMsg());
-            application.repaint();
-            self.setDelay(application.getStepDelay());
-        });
+        autoCompleter = new AutoCompleter(application, this);
 
-        startButton.addActionListener(e -> {
-            startButton.setSelected(true);
-            pauseButton.setSelected(false);
-            timer.setDelay(application.getStepDelay());
-            timer.start();
-        });
+        startButton = new StartAutocompletionButton(autoCompleter, this);
         add(startButton);
 
-        pauseButton.addActionListener(e -> {
-            startButton.setSelected(false);
-            pauseButton.setSelected(true);
-            timer.stop();
-        });
+        pauseButton = new PauseAutocompletionButton(autoCompleter, this);
         add(pauseButton);
 
-        stepButton.addActionListener(e -> {
-            application.algorithm.step();
-            if (application.algorithm.isDone())
-                algorithmEnded(application);
-            application.setStatus(application.algorithm.getMsg());
-            application.repaint();
-        });
+        stepButton = new StepForwardButton(application, this);
         add(stepButton);
 
+        backstepButton = new StepBackButton(application, this);
         add(backstepButton);
 
-        restartButton.addActionListener(e -> {
-            application.graphChanged();
-            application.setStatus("Граф сброшен к начальному состоянию");
-        });
-        add(restartButton);
+        add(new RestartButton(application));
 
-        reset();
+        resultButton = new ResultButton(application);
+        add(resultButton);
+
+        editButtonsStatus();
     }
 }

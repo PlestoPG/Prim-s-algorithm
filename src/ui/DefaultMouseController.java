@@ -14,10 +14,11 @@ enum DragState {
     EDGE
 }
 
-public class MouseController extends MouseAdapter {
+public class DefaultMouseController extends MouseAdapter {
     Point mousePosition;
     Vertex selectedVertex;
     Application application;
+    Canvas canvas;
     Toolbar toolbar;
     DragState dragState;
 
@@ -37,7 +38,7 @@ public class MouseController extends MouseAdapter {
     @Override
     public void mouseClicked(MouseEvent event) {
         if (SwingUtilities.isRightMouseButton(event)) {
-            Vertex vertex = FindVertex.byPoint(application.graph, event.getPoint());
+            Vertex vertex = FindVertex.byPoint(canvas, application.graph, event.getPoint());
             if (vertex != null && event.isControlDown() && dragState != DragState.VERTEX) {
                 dragState = DragState.VERTEX;
                 selectedVertex = vertex;
@@ -54,10 +55,12 @@ public class MouseController extends MouseAdapter {
                 application.setStatus("Поставлена вершина " + selectedVertex.getName());
                 selectedVertex = null;
                 mousePosition = null;
+                canvas.increaseSize(event.getPoint().x, event.getPoint().y);
                 application.canvasRepaint();
             } else {
-                String name = placeVertex(event.getPoint().x, event.getPoint().y);
+                String name = placeVertex(event.getPoint().x - Canvas.offsetX, event.getPoint().y - Canvas.offsetY);
                 application.setStatus("Добавлена вершина " + name);
+                canvas.increaseSize(event.getPoint().x, event.getPoint().y);
                 application.graphChanged();
             }
         }
@@ -72,8 +75,9 @@ public class MouseController extends MouseAdapter {
     @Override
     public void mouseMoved(MouseEvent e) {
         if (dragState == DragState.VERTEX) {
-            selectedVertex.setX(e.getX());
-            selectedVertex.setY(e.getY());
+            selectedVertex.setX(e.getX() - Canvas.offsetX);
+            selectedVertex.setY(e.getY() - Canvas.offsetY);
+            canvas.increaseSize(e.getX(), e.getY());
         }
         application.canvasRepaint();
     }
@@ -81,7 +85,7 @@ public class MouseController extends MouseAdapter {
     @Override
     public void mousePressed(MouseEvent event) {
         if (SwingUtilities.isLeftMouseButton(event)) {
-            selectedVertex = FindVertex.byPoint(application.graph, event.getPoint());
+            selectedVertex = FindVertex.byPoint(canvas, application.graph, event.getPoint());
             if (selectedVertex != null) {
                 dragState = DragState.EDGE;
                 mousePosition = event.getPoint();
@@ -93,7 +97,7 @@ public class MouseController extends MouseAdapter {
     @Override
     public void mouseReleased(MouseEvent e) {
         if (selectedVertex != null) {
-            Vertex target = FindVertex.byPoint(application.graph, e.getPoint());
+            Vertex target = FindVertex.byPoint(canvas, application.graph, e.getPoint());
             if (dragState == DragState.EDGE) {
                 if (target != null && target != selectedVertex) {
                     String result = JOptionPane.showInputDialog(
@@ -102,13 +106,13 @@ public class MouseController extends MouseAdapter {
                     );
                     try {
                         int weight = Integer.parseInt(result);
-                        if (weight < 0)
-                            throw new Exception();
                         application.graph.addEdge(selectedVertex.getName(), target.getName(), weight);
                         application.graphChanged();
                         application.setStatus("Добавлено ребро с весом " + weight + " между вершинами " + selectedVertex.getName() + " и " + target.getName());
-                    } catch (Exception ex) {
-                        application.setStatus("Вес должен быть неотрицательным числом");
+                    } catch (NumberFormatException exception) {
+                        application.setStatus("Не удалось добавить ребро: Введите целое число");
+                    } catch (IllegalArgumentException exception) {
+                        application.setStatus("Не удалось добавить ребро: " + exception.getMessage());
                     }
                 }
                 dragState = DragState.NONE;
@@ -119,9 +123,10 @@ public class MouseController extends MouseAdapter {
         }
     }
 
-    MouseController(Application application, Toolbar toolbar) {
+    DefaultMouseController(Application application, Canvas canvas, Toolbar toolbar) {
         this.dragState = DragState.NONE;
         this.application = application;
+        this.canvas = canvas;
         this.toolbar = toolbar;
     }
 }

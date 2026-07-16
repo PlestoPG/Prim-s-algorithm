@@ -8,6 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
 public class Prim {
     public enum Stage { FIND_MIN, ADD_TO_TREE, UPDATE_EDGES, FINISHED }
     private final Graph graph;
@@ -20,21 +24,78 @@ public class Prim {
     private String msg;
     private Edge currEdge;
     private Vertex currVert;
-    public Prim(Graph graph) {
+    private final Deque<Memento> history = new ArrayDeque<>();
+    private class Memento {
+        private final Set<Vertex> visitedCopy;
+        private final List<Edge> mstCopy;
+        private final List<Edge> pqCopy;
+        private final int weightCopy;
+        private final boolean doneCopy;
+        private final Stage stageCopy;
+        private final String msgCopy;
+        private final Edge currEdgeCopy;
+        private final Vertex currVertCopy;
+        private final Map<Vertex, Vertex.State> vertexStates;
+        private final Map<Edge, Edge.State> edgeStates;
+        private Memento() {
+            this.visitedCopy = new HashSet<>(visited);
+            this.mstCopy = new ArrayList<>(mst);
+            this.pqCopy = new ArrayList<>(pq);
+            this.weightCopy = weight;
+            this.doneCopy = done;
+            this.stageCopy = stage;
+            this.msgCopy = msg;
+            this.currEdgeCopy = currEdge;
+            this.currVertCopy = currVert;
+            this.vertexStates = new HashMap<>();
+            for (Vertex v : graph.getVertices()) {
+                vertexStates.put(v, v.getState());
+            }
+            this.edgeStates = new HashMap<>();
+            for (Edge e : graph.getEdges()) {
+                edgeStates.put(e, e.getState());
+            }
+        }
+        private void restore() {
+            visited.clear();
+            visited.addAll(visitedCopy);
+            mst.clear();
+            mst.addAll(mstCopy);
+            pq.clear();
+            pq.addAll(pqCopy);
+            weight = weightCopy;
+            done = doneCopy;
+            stage = stageCopy;
+            msg = msgCopy;
+            currEdge = currEdgeCopy;
+            currVert = currVertCopy;
+            vertexStates.forEach(Vertex::setState);
+            edgeStates.forEach(Edge::setState);
+        }
+    }
+    public Prim(Graph graph, boolean withResult) {
         this.graph = graph;
         this.pq = new PriorityQueue<>(Comparator.comparingInt(Edge::getWeight));
         this.visited = new HashSet<>();
         this.mst = new ArrayList<>();
         this.weight = 0;
-        this.done = false;
+        this.done = withResult;
         this.stage = Stage.FINISHED;
         this.msg = "";
+        if (withResult) {
+            for (Edge edge : graph.getEdges())
+                if (edge.getState() == Edge.State.IN_MST) {
+                    this.weight += edge.getWeight();
+                    this.mst.add(edge);
+                }
+        }
     }
     public void start(Vertex start) {
         graph.reset();
         pq.clear();
         visited.clear();
         mst.clear();
+        history.clear();
         weight = 0;
         done = false;
         if (start == null) return;
@@ -50,6 +111,7 @@ public class Prim {
     }
     public void step() {
         if (done) return;
+        save();
         switch (stage) {
             case FIND_MIN:
                 findMin();
@@ -64,6 +126,13 @@ public class Prim {
                 finish();
                 break;
         }
+    }
+    public void stepBack() {
+        if (history.isEmpty()) return;
+        history.pop().restore();
+    }
+    private void save() {
+        history.push(new Memento());
     }
     private void findMin() {
         Edge edge = pq.poll();

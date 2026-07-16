@@ -16,19 +16,30 @@ public class Application extends JFrame {
     public Graph graph = new Graph();
     private final Toolbar toolbar;
     private final BottomPanel bottomPanel;
-    public Prim algorithm;
+    public Prim algorithm = new Prim(graph, false);
 
     public Application() {
         setTitle("Визуализатор алгоритма Прима (Бета)");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setSize(Toolkit.getDefaultToolkit().getScreenSize());
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         toolbar = new Toolbar(this);
         add(toolbar, BorderLayout.NORTH);
 
         canvas = new Canvas(this, toolbar);
-        add(canvas, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(canvas);
+        scrollPane.getViewport().addChangeListener(e -> {
+            Canvas.view = scrollPane.getViewport().getViewRect();
+            Canvas.view.x += Canvas.DISTANCE_FROM_BORDER_TO_RESIZE;
+            Canvas.view.y += Canvas.DISTANCE_FROM_BORDER_TO_RESIZE;
+            Canvas.view.width -= Canvas.DISTANCE_FROM_BORDER_TO_RESIZE * 2;
+            Canvas.view.height -= Canvas.DISTANCE_FROM_BORDER_TO_RESIZE * 2;
+        });
+        canvas.setJScrollPane(scrollPane);
+        canvas.setPreferredSize(new Dimension(getWidth() * 2, getHeight() * 2));
+        add(scrollPane, BorderLayout.CENTER);
 
         bottomPanel = new BottomPanel(this);
         add(bottomPanel, BorderLayout.SOUTH);
@@ -36,9 +47,10 @@ public class Application extends JFrame {
         setTransferHandler(new DragNDropHandler(this));
 
         setVisible(true);
+        SwingUtilities.invokeLater(canvas::initiateViewPoint);
     }
 
-    public void chooseStartVertex() {
+    public void changeModeToAlgorithmStart() {
         setStatus("Выберите начальную вершину");
         canvas.chooseStartVertexMode();
     }
@@ -54,15 +66,18 @@ public class Application extends JFrame {
         canvas.repaint();
     }
 
-    public void graphChanged() {
-        if (graph.getVertices().isEmpty()) {
-            toolbar.verticesDisappeared();
-        } else {
-            toolbar.verticesAppeared();
-        }
-        graph.reset();
+    public void loadedGraphWithResult() {
+        toolbar.loadedGraphWithResult();
         canvas.resetMouseController();
-        algorithm = new Prim(graph);
+        algorithm = new Prim(graph, true);
+        repaint();
+    }
+
+    public void graphChanged() {
+        toolbar.graphChanged(graph.getVertices().isEmpty());
+        canvas.resetMouseController();
+        graph.reset();
+        algorithm = new Prim(graph, false);
         repaint();
     }
 
@@ -74,9 +89,5 @@ public class Application extends JFrame {
         if (bottomPanel == null)
             return DEFAULT_DELAY;
         return bottomPanel.getStepDelay();
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(Application::new);
     }
 }
