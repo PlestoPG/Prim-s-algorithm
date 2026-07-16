@@ -24,7 +24,7 @@ public class Graph {
             }
         }
     }
-    public void addEdge(String n1, String n2, int w) {
+    public Edge addEdge(String n1, String n2, int w) {
         Vertex v1 = vertexMap.get(n1);
         Vertex v2 = vertexMap.get(n2);
         if (v1 != null && v2 != null) {
@@ -37,7 +37,9 @@ public class Graph {
             edgeSet.add(e);
             adjMap.get(v1).add(e);
             adjMap.get(v2).add(e);
+            return e;
         }
+        return null;
     }
     public Set<Vertex> getVertices() {
         return new LinkedHashSet<>(vertexMap.values());

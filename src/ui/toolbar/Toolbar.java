@@ -14,7 +14,8 @@ public class Toolbar extends JToolBar {
 
     public enum ToolbarMode {
         BUILDING,
-        ALGORITHM
+        ALGORITHM,
+        CHECK_RESULT
     }
 
     public void graphChanged(boolean isEmpty) {
@@ -22,6 +23,12 @@ public class Toolbar extends JToolBar {
         saveButton.setEnabled(!isEmpty);
         chooseVertexButton.setEnabled(!isEmpty);
         changeMode(ToolbarMode.BUILDING);
+    }
+
+    public void loadedGraphWithResult() {
+        clearButton.setEnabled(true);
+        saveButton.setEnabled(true);
+        changeMode(ToolbarMode.CHECK_RESULT);
     }
 
     public void changeMode(ToolbarMode mode) {
@@ -33,6 +40,10 @@ public class Toolbar extends JToolBar {
             }
             case ALGORITHM -> {
                 algorithmToolbar.reset();
+                add(algorithmToolbar, index);
+            }
+            case CHECK_RESULT -> {
+                algorithmToolbar.resultOnly();
                 add(algorithmToolbar, index);
             }
         }

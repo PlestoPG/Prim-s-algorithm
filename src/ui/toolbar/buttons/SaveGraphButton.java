@@ -20,7 +20,7 @@ public class SaveGraphButton extends JButton {
             if (result == JFileChooser.APPROVE_OPTION) {
                 String path = fileChooser.getSelectedFile().getAbsolutePath();
                 try {
-                    FileSaver.save(path, application.graph);
+                    FileSaver.save(path, application.graph, application.algorithm.isDone());
                     application.setStatus("Граф был сохранён в файл " + path);
                 } catch (IOException e) {
                     application.setStatus("Не удалось сохранить граф в файл " + path);

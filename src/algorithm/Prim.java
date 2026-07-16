@@ -73,15 +73,22 @@ public class Prim {
             edgeStates.forEach(Edge::setState);
         }
     }
-    public Prim(Graph graph) {
+    public Prim(Graph graph, boolean withResult) {
         this.graph = graph;
         this.pq = new PriorityQueue<>(Comparator.comparingInt(Edge::getWeight));
         this.visited = new HashSet<>();
         this.mst = new ArrayList<>();
         this.weight = 0;
-        this.done = false;
+        this.done = withResult;
         this.stage = Stage.FINISHED;
         this.msg = "";
+        if (withResult) {
+            for (Edge edge : graph.getEdges())
+                if (edge.getState() == Edge.State.IN_MST) {
+                    this.weight += edge.getWeight();
+                    this.mst.add(edge);
+                }
+        }
     }
     public void start(Vertex start) {
         graph.reset();

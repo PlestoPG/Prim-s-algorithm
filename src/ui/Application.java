@@ -16,7 +16,7 @@ public class Application extends JFrame {
     public Graph graph = new Graph();
     private final Toolbar toolbar;
     private final BottomPanel bottomPanel;
-    public Prim algorithm = new Prim(graph);
+    public Prim algorithm = new Prim(graph, false);
 
     public Application() {
         setTitle("Визуализатор алгоритма Прима (Бета)");
@@ -66,11 +66,18 @@ public class Application extends JFrame {
         canvas.repaint();
     }
 
+    public void loadedGraphWithResult() {
+        toolbar.loadedGraphWithResult();
+        canvas.resetMouseController();
+        algorithm = new Prim(graph, true);
+        repaint();
+    }
+
     public void graphChanged() {
         toolbar.graphChanged(graph.getVertices().isEmpty());
         canvas.resetMouseController();
         graph.reset();
-        algorithm = new Prim(graph);
+        algorithm = new Prim(graph, false);
         repaint();
     }
 

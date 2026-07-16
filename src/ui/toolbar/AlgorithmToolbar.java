@@ -12,12 +12,22 @@ public class AlgorithmToolbar extends JToolBar {
     private final JButton pauseButton;
     private final JButton stepButton;
     private final JButton backstepButton;
+    private final JButton resultButton;
     private final AutoCompleter autoCompleter;
 
     public void reset() {
         startButton.setSelected(false);
         pauseButton.setSelected(true);
         autoCompleter.stop();
+    }
+
+    public void resultOnly() {
+        endButton.setEnabled(false);
+        startButton.setEnabled(false);
+        pauseButton.setEnabled(false);
+        stepButton.setEnabled(false);
+        backstepButton.setEnabled(false);
+        resultButton.setEnabled(true);
     }
 
     public void editButtonsStatus() {
@@ -29,6 +39,7 @@ public class AlgorithmToolbar extends JToolBar {
             pauseButton.setEnabled(false);
             stepButton.setEnabled(false);
             backstepButton.setEnabled(true);
+            resultButton.setEnabled(true);
             autoCompleter.stop();
         } else if (application.algorithm.getMst().isEmpty()) {
             endButton.setEnabled(true);
@@ -36,12 +47,14 @@ public class AlgorithmToolbar extends JToolBar {
             pauseButton.setEnabled(true);
             stepButton.setEnabled(true);
             backstepButton.setEnabled(false);
+            resultButton.setEnabled(false);
         } else {
             endButton.setEnabled(true);
             startButton.setEnabled(true);
             pauseButton.setEnabled(true);
             stepButton.setEnabled(true);
             backstepButton.setEnabled(true);
+            resultButton.setEnabled(false);
         }
         application.setStatus(application.algorithm.getMsg());
         application.repaint();
@@ -72,6 +85,9 @@ public class AlgorithmToolbar extends JToolBar {
         add(backstepButton);
 
         add(new RestartButton(application));
+
+        resultButton = new ResultButton(application);
+        add(resultButton);
 
         editButtonsStatus();
     }
