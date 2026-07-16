@@ -12,8 +12,8 @@ import java.util.Random;
 public class Canvas extends JPanel {
     Application application;
     JScrollPane scrollPane;
-    MouseController controller;
-    StartMouseController startController;
+    DefaultMouseController controller;
+    AlgorithmStartMouseController startController;
     MouseAdapter currentController;
     static public int offsetX = 0;
     static public int offsetY = 0;
@@ -183,7 +183,6 @@ public class Canvas extends JPanel {
         if (currentController == startController)
             return;
         removeMouseListener(controller);
-        removeMouseMotionListener(controller);
         addMouseListener(startController);
         currentController = startController;
     }
@@ -193,7 +192,6 @@ public class Canvas extends JPanel {
             return;
         removeMouseListener(startController);
         addMouseListener(controller);
-        addMouseMotionListener(controller);
         currentController = controller;
     }
 
@@ -202,11 +200,11 @@ public class Canvas extends JPanel {
 
         setBackground(Color.WHITE);
 
-        this.controller = new MouseController(application, this, toolbar);
+        this.controller = new DefaultMouseController(application, this, toolbar);
         addMouseListener(controller);
         addMouseMotionListener(controller);
         currentController = controller;
 
-        this.startController = new StartMouseController(application, this);
+        this.startController = new AlgorithmStartMouseController(application, this);
     }
 }

@@ -16,7 +16,7 @@ public class Application extends JFrame {
     public Graph graph = new Graph();
     private final Toolbar toolbar;
     private final BottomPanel bottomPanel;
-    public Prim algorithm;
+    public Prim algorithm = new Prim(graph);
 
     public Application() {
         setTitle("Визуализатор алгоритма Прима (Бета)");
@@ -28,7 +28,6 @@ public class Application extends JFrame {
         toolbar = new Toolbar(this);
         add(toolbar, BorderLayout.NORTH);
 
-        // Холст с графом
         canvas = new Canvas(this, toolbar);
         JScrollPane scrollPane = new JScrollPane(canvas);
         scrollPane.getViewport().addChangeListener(e -> {
@@ -51,7 +50,7 @@ public class Application extends JFrame {
         SwingUtilities.invokeLater(canvas::initiateViewPoint);
     }
 
-    public void chooseStartVertex() {
+    public void changeModeToAlgorithmStart() {
         setStatus("Выберите начальную вершину");
         canvas.chooseStartVertexMode();
     }
@@ -68,13 +67,9 @@ public class Application extends JFrame {
     }
 
     public void graphChanged() {
-        if (graph.getVertices().isEmpty()) {
-            toolbar.verticesDisappeared();
-        } else {
-            toolbar.verticesAppeared();
-        }
-        graph.reset();
+        toolbar.graphChanged(graph.getVertices().isEmpty());
         canvas.resetMouseController();
+        graph.reset();
         algorithm = new Prim(graph);
         repaint();
     }
@@ -87,9 +82,5 @@ public class Application extends JFrame {
         if (bottomPanel == null)
             return DEFAULT_DELAY;
         return bottomPanel.getStepDelay();
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(Application::new);
     }
 }
